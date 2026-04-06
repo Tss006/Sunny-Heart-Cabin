@@ -4,91 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>心晴小屋 - 首页</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/index/index.css">
+  <link rel="stylesheet" href="css/index/user.css">
+  <link rel="stylesheet" href="css/index/mood.css">
+  <link rel="stylesheet" href="css/index/chat.css">
+  <link rel="stylesheet" href="css/index/test.css">
+  <link rel="stylesheet" href="css/index/music.css">
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      display: flex;
-      min-height: 100vh;
-      background: #f5f9ff;
-    }
-
-    /* 左侧导航 */
-    .sidebar {
-      width: 240px;
-      background: white;
-      position: fixed;
-      height: 100vh;
-      left: 0;
-      top: 0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-      padding: 30px 0;
-      z-index: 99;
-    }
-
-    .sidebar .logo {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: #4a90e2;
-      margin-bottom: 40px;
-    }
-
-    .sidebar-menu {
-      list-style: none;
-      padding: 0 20px;
-    }
-
-    .sidebar-menu li {
-      margin-bottom: 8px;
-    }
-
-    .sidebar-menu a {
-      display: block;
-      padding: 14px 18px;
-      border-radius: 12px;
-      color: #333;
-      text-decoration: none;
-      font-size: 16px;
-    }
-
-    .sidebar-menu a.active {
-      background: #4a90e2;
-      color: white;
-    }
-
-    /* 右侧内容 —— 只显示内容！！！ */
-    .content {
-      margin-left: 240px;
-      flex: 1;
-      padding: 40px;
-    }
-
-    /* 隐藏所有多余东西 */
-    .banner,
-    .home-header,
-    .sticker-container,
-    .bg-animation,
-    footer {
-      display: none !important;
-    }
-
-    .card-box {
-      display: none !important;
-    }
-  </style>
-
-  <script>
-    if (!localStorage.getItem("isLogin")) {
-      location.href = "login.html";
-    }
-  </script>
+  
 </head>
 
 <body>
@@ -97,30 +20,154 @@
 <div class="sidebar">
   <div class="logo">心晴小屋</div>
   <ul class="sidebar-menu">
-    <li><a href="index.html" class="active">首页</a></li>
-    <li><a href="user.html">个人中心</a></li>
-    <li><a href="chat.html">AI 聊天</a></li>
-    <li><a href="mood.html">心情日记</a></li>
-    <li><a href="test.html">心理测试</a></li>
-    <li><a href="music.html">治愈音乐</a></li>
-    <li><a href="#" id="logout">退出登录</a></li>
+    <li><a href="#" onclick="showPage('home', this)" class="active">首页</a></li>
+    <li><a href="#" onclick="showPage('user', this)">个人中心</a></li>
+    <li><a href="#" onclick="showPage('chat', this)">AI 聊天</a></li>
+    <li><a href="#" onclick="showPage('mood', this)">心情日记</a></li>
+    <li><a href="#" onclick="showPage('test', this)">心理测试</a></li>
+    <li><a href="#" onclick="showPage('music', this)">治愈音乐</a></li>
   </ul>
+  <button id="logout" class="logout-btn">退出登录</button>
 </div>
 
 <!-- 右侧：只显示文字 → 你要的干净效果 -->
 <div class="content">
-  <h1>欢迎来到心晴小屋</h1>
-  <p style="margin-top:10px; font-size:18px;">请从左侧菜单选择功能</p>
+  <div id="home-content">
+    <h1>欢迎来到心晴小屋</h1>
+    <p style="margin-top:10px; font-size:18px;">请从左侧菜单选择功能</p>
+  </div>
+  <div id="user-content" style="display:none;">
+    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+    <div class="user-container">
+      <!-- 欢迎头部 -->
+      <div class="welcome-header">
+        <div class="avatar" onclick="changeAvatar()">
+          <img src="images/avatar-default.png" class="avatar_img" id="avatarImg">
+        </div>
+        <div class="welcome-text">
+          <h1>欢迎回来，心晴用户！</h1>
+          <p>今天又是美好的一天，继续守护你的心灵健康</p>
+        </div>
+      </div>
+
+      <!-- 用户信息卡片 -->
+      <div class="user-profile-card">
+        <h2>📋 个人资料</h2>
+        <div class="profile-info">
+          <div class="info-item">
+            <span class="label">昵称：</span>
+            <span class="value">心晴小屋用户</span>
+          </div>
+          <div class="info-item">
+            <span class="label">注册时间：</span>
+            <span class="value">2024年1月1日</span>
+          </div>
+          <div class="info-item">
+            <span class="label">会员等级：</span>
+            <span class="value">普通会员</span>
+          </div>
+          <div class="info-item">
+            <span class="label">当前状态：</span>
+            <span class="value">已登录</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 统计面板 -->
+      <div class="stats-panel">
+        <h2>📊 我的统计</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>日记条数</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧠</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>测试次数</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎵</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>音乐播放</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>聊天记录</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功能中心 -->
+      <div class="features-section">
+        <h2>🚀 功能中心</h2>
+        <div class="features-grid">
+          <div class="feature-item" onclick="showPage('mood', this)">
+            <div class="feature-icon">📖</div>
+            <h4>心情日记</h4>
+            <p>记录每日情绪，释放内心</p>
+          </div>
+          <div class="feature-item" onclick="showPage('test', this)">
+            <div class="feature-icon">🧪</div>
+            <h4>心理测评</h4>
+            <p>专业评估，了解自己</p>
+          </div>
+          <div class="feature-item" onclick="showPage('chat', this)">
+            <div class="feature-icon">🤖</div>
+            <h4>AI 聊天</h4>
+            <p>智能对话，情感支持</p>
+          </div>
+          <div class="feature-item" onclick="showPage('music', this)">
+            <div class="feature-icon">🎧</div>
+            <h4>治愈音乐</h4>
+            <p>舒缓音乐，放松身心</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <h4>我的报告</h4>
+            <p>查看历史测评结果</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚙️</div>
+            <h4>设置</h4>
+            <p>账号与隐私设置</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="chat-content" style="display:none;">
+    <h1>AI 聊天</h1>
+    <p>这里是AI聊天功能页面。</p>
+  </div>
+  <div id="mood-content" style="display:none;">
+    <h1>心情日记</h1>
+    <p>这里是心情日记功能页面。</p>
+  </div>
+  <div id="test-content" style="display:none;">
+    <h1>心理测试</h1>
+    <p>这里是心理测试功能页面。</p>
+  </div>
+  <div id="music-content" style="display:none;">
+    <h1>治愈音乐</h1>
+    <p>这里是治愈音乐功能页面。</p>
+  </div>
 </div>
-
-<script>
-  document.getElementById('logout').onclick = function(){
-    if(confirm('确定退出？')){
-      localStorage.removeItem("isLogin");
-      location.href = "login.html";
-    }
-  }
-</script>
-
+  <script src="js/index/index.js"></script>
+  <script src="js/index/user.js"></script>
+  <script src="js/index/mood.js"></script>
+  <script src="js/index/chat.js"></script>
+  <script src="js/index/test.js"></script>
+  <script src="js/index/music.js"></script>
 </body>
 </html>

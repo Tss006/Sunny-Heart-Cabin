@@ -4,16 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>心晴小屋 - 注册</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/register.css">
 
-  <style>
-    html, body {
-      background: url("../image/login_bg.jpg") no-repeat center center !important;
-      background-size: cover !important;
-      background-attachment: fixed !important;
-    }
-  </style>
-</head>
+  
 
 <body class="login-page">
 
@@ -67,15 +60,6 @@
       <a href="login.html" class="link-text">已有账号？前往登录</a>
     </div>
   </div>
-
-  <script>
-    const form = document.getElementById('registerForm');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      alert('注册成功！即将跳转到登录页');
-      location.href = 'login.html';
-    });
-  </script>
-
+<script src="js/register.js"></script>
 </body>
 </html>

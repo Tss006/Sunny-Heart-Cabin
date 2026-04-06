@@ -4,16 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>心晴小屋 - 登录</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
 
-  <style>
-    html, body {
-      background: url("../image/login_bg.jpg") no-repeat center center !important;
-      background-size: cover !important;
-      background-attachment: fixed;
-    }
-  </style>
-</head>
+  
 <body class="login-page"></body>
 
   <div class="background">
@@ -59,15 +52,6 @@
       <a href="register.html" class="link-text">还没有账号？前往注册</a>
     </div>
   </div>
-
-  <script>
-    const form = document.querySelector(".login-form");
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      localStorage.setItem("isLogin", "true");
-      location.href = "index.html";
-    });
-  </script>
-
+<script src="js/login.js"></script>
 </body>
 </html>
