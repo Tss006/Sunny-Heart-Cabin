@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心晴小屋 - 注册</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    html, body {
+      background: url("../image/login_bg.jpg") no-repeat center center !important;
+      background-size: cover !important;
+      background-attachment: fixed !important;
+    }
+  </style>
+</head>
+
+<body class="login-page">
+
+  <!-- 装饰元素 -->
+  <div class="sticker-container">
+    <div class="sticker sun"></div>
+    <div class="sticker cloud1"></div>
+    <div class="sticker cloud2"></div>
+    <div class="sticker star1"></div>
+    <div class="sticker star2"></div>
+    <div class="sticker heart1"></div>
+    <div class="sticker heart2"></div>
+    <div class="sticker moon"></div>
+  </div>
+  <div class="bg-animation">
+    <div class="floating-element element-1"></div>
+    <div class="floating-element element-2"></div>
+    <div class="floating-element element-3"></div>
+    <div class="floating-element element-4"></div>
+  </div>
+
+  <!-- 注册卡片 -->
+  <div class="auth-card">
+    <div class="card-header">
+      <h2 class="main-title">用户注册</h2>
+      <p class="subtitle">创建你的心晴小屋账号</p>
+    </div>
+
+    <form class="auth-form" id="registerForm">
+      <div class="form-group">
+        <label>昵称</label>
+        <input type="text" placeholder="请输入昵称" required>
+      </div>
+      <div class="form-group">
+        <label>账号</label>
+        <input type="text" placeholder="请输入账号" required>
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" placeholder="请输入密码" required>
+      </div>
+      <div class="form-group">
+        <label>确认密码</label>
+        <input type="password" placeholder="请再次输入密码" required>
+      </div>
+
+      <button type="submit" class="btn-primary">完成注册</button>
+    </form>
+
+    <div class="card-footer">
+      <a href="login.html" class="link-text">已有账号？前往登录</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      alert('注册成功！即将跳转到登录页');
+      location.href = 'login.html';
+    });
+  </script>
+
+</body>
+</html>
