@@ -66,11 +66,35 @@
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 }
 
-.user-profile-card h2 {
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-header h2 {
   font-size: 24px;
   color: #4a90e2;
-  margin-bottom: 20px;
+  margin: 0;
   font-weight: 600;
+}
+
+.edit-btn {
+  width:200px;
+  height:70px;
+  background-color: rgb(15, 95, 254);
+  color:white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: 0.3s;
+}
+
+.edit-btn:hover {
+  background-color: #4a90e2;
 }
 
 .profile-info {
@@ -100,6 +124,15 @@
 .value {
   color: #555;
   font-size: 15px;
+}
+
+.edit-input {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 15px;
+  color: #555;
+  width: 200px;
 }
 
 /* 统计面板 */
@@ -175,9 +208,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
+  justify-items: center;
 }
 
 .feature-item {
+  width: 240px;
+  height:100%;
   background: rgba(255,255,255,0.9);
   padding: 30px;
   border-radius: 18px;
@@ -210,4 +246,11 @@
   color: #666;
   font-size: 14px;
   line-height: 1.5;
+}
+
+/* 编辑资料按钮区域 */
+.edit-profile-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }

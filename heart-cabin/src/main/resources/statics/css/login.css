@@ -221,6 +221,16 @@ body.login-page::before {
   gap: 16px !important;
 }
 
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #fcc;
+  font-size: 13px;
+  text-align: center;
+}
+
 .form-group {
   display: flex !important;
   flex-direction: column !important;

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>心晴小屋 - 登录</title>
   <link rel="stylesheet" href="css/login.css">
+  <script src="node_modules/axios/dist/axios.min.js"></script>
 
   
 <body class="login-page"></body>
@@ -37,6 +38,7 @@
     </div>
 
     <form class="auth-form login-form">
+      <div id="error-message" class="error-message" style="display: none;"></div>
       <div class="form-group">
         <label for="login-account">账号</label>
         <input type="text" id="login-account" placeholder="请输入您的账号" required>

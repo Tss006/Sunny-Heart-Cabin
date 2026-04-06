@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/index/chat.css">
   <link rel="stylesheet" href="css/index/test.css">
   <link rel="stylesheet" href="css/index/music.css">
+  <script src="node_modules/axios/dist/axios.min.js"></script>
 
   
 </head>
@@ -52,11 +53,25 @@
 
       <!-- 用户信息卡片 -->
       <div class="user-profile-card">
-        <h2>📋 个人资料</h2>
+        <div class="profile-header">
+          <h2>📋 个人资料</h2>
+        </div>
         <div class="profile-info">
           <div class="info-item">
             <span class="label">昵称：</span>
-            <span class="value">心晴小屋用户</span>
+            <span class="value" id="nickname">心晴小屋用户</span>
+          </div>
+          <div class="info-item">
+            <span class="label">年龄：</span>
+            <span class="value" id="age">25</span>
+          </div>
+          <div class="info-item">
+            <span class="label">性别：</span>
+            <span class="value" id="gender">女</span>
+          </div>
+          <div class="info-item">
+            <span class="label">个性签名：</span>
+            <span class="value" id="signature">守护心灵健康，一起前行</span>
           </div>
           <div class="info-item">
             <span class="label">注册时间：</span>
@@ -72,7 +87,9 @@
           </div>
         </div>
       </div>
-
+      <div class="edit-profile-section">
+        <button id="editProfileBtn" class="edit-btn">编辑资料</button>
+      </div>
       <!-- 统计面板 -->
       <div class="stats-panel">
         <h2>📊 我的统计</h2>
@@ -98,13 +115,6 @@
               <p>音乐播放</p>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">💬</div>
-            <div class="stat-content">
-              <h3></h3>
-              <p>聊天记录</p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -112,26 +122,6 @@
       <div class="features-section">
         <h2>🚀 功能中心</h2>
         <div class="features-grid">
-          <div class="feature-item" onclick="showPage('mood', this)">
-            <div class="feature-icon">📖</div>
-            <h4>心情日记</h4>
-            <p>记录每日情绪，释放内心</p>
-          </div>
-          <div class="feature-item" onclick="showPage('test', this)">
-            <div class="feature-icon">🧪</div>
-            <h4>心理测评</h4>
-            <p>专业评估，了解自己</p>
-          </div>
-          <div class="feature-item" onclick="showPage('chat', this)">
-            <div class="feature-icon">🤖</div>
-            <h4>AI 聊天</h4>
-            <p>智能对话，情感支持</p>
-          </div>
-          <div class="feature-item" onclick="showPage('music', this)">
-            <div class="feature-icon">🎧</div>
-            <h4>治愈音乐</h4>
-            <p>舒缓音乐，放松身心</p>
-          </div>
           <div class="feature-item">
             <div class="feature-icon">📊</div>
             <h4>我的报告</h4>
@@ -144,6 +134,7 @@
           </div>
         </div>
       </div>
+      
     </div>
   </div>
   <div id="chat-content" style="display:none;">
