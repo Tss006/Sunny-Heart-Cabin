@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 public class TestHistory {
     private Long id;
     private Long userId;
-    private Integer score;
-    private String level;
-    private String advice;
+    private Integer totalScore;  // 总得分
+    private String level;        // 压力等级
+    private String advice;       // 专业建议
     private LocalDateTime createTime;
 }

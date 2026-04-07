@@ -1,18 +1,14 @@
 package com.example.heartcabin.service;
 
 import com.example.heartcabin.entity.TestQuestion;
-import com.example.heartcabin.mapper.TestMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
-@Service
-public class TestService {
-
-    @Autowired
-    private TestMapper testMapper;
-
-    public List<TestQuestion> getQuestions() {
-        return testMapper.getQuestions();
-    }
+public interface TestService {
+    // 获取题目列表
+    List<TestQuestion> getQuestions();
+    // 计算总分
+    int calculateScore(List<Integer> answers);
+    // 生成测评结果
+    Map<String, String> generateResult(int totalScore);
 }
