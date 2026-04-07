@@ -26,4 +26,21 @@ public class MusicController {
         List<Music> musicList = musicService.getByType(type);
         return Result.success("获取分类音乐成功", musicList);
     }
+
+    // 智能推荐接口：根据测评总分推荐对应类型的疗愈音乐
+    @GetMapping("/recommend")
+    public Result<List<Music>> recommend(@RequestParam Integer totalScore) {
+        String type;
+        if (totalScore <= 25) {
+            type = "relax";
+        } else if (totalScore <= 40) {
+            type = "light";
+        } else if (totalScore <= 55) {
+            type = "relieve";
+        } else {
+            type = "calm";
+        }
+        List<Music> list = musicService.getByType(type);
+        return Result.success("智能推荐成功", list);
+    }
 }

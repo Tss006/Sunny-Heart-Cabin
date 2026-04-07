@@ -1,14 +1,10 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/heart_cabin?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://rm-cn-kc24qag5i0001fno.rwlb.cn-beijing.rds.aliyuncs.com:3306/heart_cabin?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia&allowPublicKeyRetrieval=true
+    username: heart_cabin_root
+    password: 2694642214t@
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-server:
-  port: 8080
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
-  configuration:
-    map-underscore-to-camel-case: true
+  type-aliases-package: com.example.heartcabin.entity
