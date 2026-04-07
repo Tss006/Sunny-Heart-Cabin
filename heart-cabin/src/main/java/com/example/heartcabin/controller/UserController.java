@@ -16,6 +16,7 @@ public class UserController {
     // 登录
     @PostMapping("/login")
     public Result<User> login(@RequestBody User user) {
+        System.out.println("正在登录");
         User loginUser = userService.login(user.getUsername(), user.getPassword());
         if (loginUser != null) {
             return Result.success("登录成功", loginUser);

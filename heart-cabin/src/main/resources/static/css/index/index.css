@@ -1,0 +1,410 @@
+/* ======================================
+   心晴小屋 · 一眼高级 强对比版（零缓存问题）
+====================================== */
+* {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif !important;
+}
+
+:root {
+  --primary: #4a90e2;
+  --primary-dark: #3572ac;
+  --card-bg: #ffffff;
+  --bg-gradient: linear-gradient(135deg, #d4e8ff 0%, #f0f7ff 100%);
+  --text: #1a202c;
+  --text-secondary: #718096;
+  --radius: 24px;
+  --radius-lg: 32px;
+  --shadow: 0 16px 48px rgba(74, 144, 226, 0.18);
+  --shadow-hover: 0 24px 64px rgba(74, 144, 226, 0.28);
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--bg-gradient) ;
+  color: var(--text) !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  animation: pageFadeIn 0.8s ease forwards !important;
+  opacity: 0;
+}
+
+@keyframes pageFadeIn {
+  to { opacity: 1; }
+}
+
+/* ======================================
+   背景装饰（云朵大改，一眼能看到动）
+====================================== */
+.sticker-container {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.sticker {
+  position: absolute !important;
+  opacity: 0.9 !important;
+}
+
+.sun {
+  top: 5% !important;
+  left: 7% !important;
+  width: 70px !important;
+  height: 70px !important;
+  background: #ffd700 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6) !important;
+  animation: floatBig 10s ease-in-out infinite alternate !important;
+}
+
+.cloud1 {
+  top: 10% !important;
+  width: 140px !important;
+  height: 42px !important;
+  background: #ffffff !important;
+  border-radius: 50px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  animation: cloudLeft 60s linear infinite !important;
+}
+
+.cloud2 {
+  bottom: 18% !important;
+  width: 120px !important;
+  height: 38px !important;
+  background: #ffffff !important;
+  border-radius: 50px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  animation: cloudRight 70s linear infinite !important;
+}
+
+@keyframes floatBig {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-25px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes cloudLeft {
+  0%   { transform: translateX(110vw); }
+  100% { transform: translateX(-110vw); }
+}
+
+@keyframes cloudRight {
+  0%   { transform: translateX(-110vw); }
+  100% { transform: translateX(110vw); }
+}
+
+.star1, .star2 {
+  background: #ffd700 !important;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important;
+  animation: floatBig 8s ease-in-out infinite alternate !important;
+}
+.star1 { top: 28% !important; right: 8% !important; width: 24px !important; height: 24px !important; }
+.star2 { bottom: 22% !important; right: 15% !important; width: 20px !important; height: 20px !important; }
+
+.heart1, .heart2 {
+  background: #ff6b9d !important;
+  transform: rotate(45deg) !important;
+  animation: floatBig 7s ease-in-out infinite alternate !important;
+}
+.heart1 { top: 38% !important; left: 9% !important; width: 26px !important; height: 26px !important; }
+.heart2 { bottom: 10% !important; right: 18% !important; width: 22px !important; height: 22px !important; }
+
+.heart1:before, .heart1:after,
+.heart2:before, .heart2:after {
+  content: '' !important;
+  position: absolute !important;
+  width: inherit !important;
+  height: inherit !important;
+  background: inherit !important;
+  border-radius: 50% !important;
+}
+.heart1:before { left: -50% !important; top: 0 !important; }
+.heart1:after { top: -50% !important; left: 0 !important; }
+.heart2:before { left: -50% !important; top: 0 !important; }
+.heart2:after { top: -50% !important; left: 0 !important; }
+
+.moon {
+  bottom: 5% !important;
+  left: 5% !important;
+  width: 52px !important;
+  height: 52px !important;
+  background: #f0e8ff !important;
+  border-radius: 50% !important;
+  box-shadow: 10px 10px 0 0 #d9d2f7 !important;
+  animation: floatBig 14s ease-in-out infinite alternate !important;
+}
+
+.bg-animation {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.floating-element {
+  position: absolute !important;
+  background: rgba(255,255,255,0.3) !important;
+  border-radius: 50% !important;
+  animation: floatBig 10s infinite ease-in-out !important;
+}
+.element-1 { top: 15% !important; left: 20% !important; width: 70px !important; height: 70px !important; }
+.element-2 { top: 25% !important; right: 20% !important; width: 60px !important; height: 60px !important; }
+.element-3 { bottom: 20% !important; left: 25% !important; width: 75px !important; height: 75px !important; }
+.element-4 { bottom: 15% !important; right: 15% !important; width: 55px !important; height: 55px !important; }
+
+/* ======================================
+   首页卡片：大改！一眼高级
+====================================== */
+.home-container {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(92%, 1200px) !important;
+  margin: 0 auto !important;
+  padding: 28px 0 !important;
+}
+
+.home-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 24px 0 !important;
+}
+
+.logo {
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  color: var(--primary) !important;
+  letter-spacing: 1px !important;
+}
+
+.nav {
+  display: flex !important;
+  gap: 36px !important;
+}
+
+.nav a {
+  text-decoration: none !important;
+  color: var(--text-secondary) !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  transition: 0.3s !important;
+  padding: 8px 0 !important;
+}
+
+.nav a.active {
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+.nav a:hover {
+  color: var(--primary) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ======================
+   🔥 首页横幅（已改好！）
+====================== */
+.banner {
+  position: relative !important;
+  width: 100% !important;
+  height: 380px !important;
+  background: url("../image/home_banner.jpg") no-repeat center center !important;
+  background-size: cover !important;
+  border-radius: 24px !important;
+  margin: 20px 0 40px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  color: white !important;
+  text-align: center !important;
+  overflow: hidden !important;
+}
+.banner::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  z-index: 1 !important;
+}
+.banner h1 {
+  position: relative !important;
+  z-index: 2 !important;
+  font-size: 48px !important;
+  font-weight: 700 !important;
+  margin-bottom: 20px !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+}
+.banner p {
+  position: relative !important;
+  z-index: 2 !important;
+  font-size: 20px !important;
+  max-width: 600px !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
+}
+
+.card-box {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+  gap: 36px !important;
+  margin: 40px 0 80px !important;
+}
+
+.func-card {
+  background: var(--card-bg) !important;
+  border-radius: var(--radius) !important;
+  padding: 50px 36px !important;
+  text-align: center !important;
+  box-shadow: var(--shadow) !important;
+  transition: 0.4s ease !important;
+  border: none !important;
+}
+
+.func-card:hover {
+  transform: translateY(-12px) !important;
+  box-shadow: var(--shadow-hover) !important;
+}
+
+.func-card h3 {
+  font-size: 26px !important;
+  font-weight: 600 !important;
+  color: var(--primary) !important;
+  margin-bottom: 16px !important;
+}
+
+.func-card p {
+  font-size: 17px !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.7 !important;
+  margin-bottom: 32px !important;
+}
+
+.card-btn {
+  display: inline-block !important;
+  padding: 14px 32px !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-radius: 16px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  text-decoration: none !important;
+  transition: 0.3s !important;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2) !important;
+}
+
+.card-btn:hover {
+  background: var(--primary-dark) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3) !important;
+}
+
+.home-footer {
+  text-align: center !important;
+  padding: 50px 0 !important;
+  color: #9ca3af !important;
+  font-size: 15px !important;
+}
+
+/* 左侧导航 */
+.sidebar {
+  width: 240px;
+  background: white;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  padding: 30px 0;
+  z-index: 99;
+}
+
+.sidebar .logo {
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  color: #4a90e2;
+  margin-bottom: 40px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0 20px;
+}
+
+.sidebar-menu li {
+  position:relative;
+  left:10%;
+  right:10%;
+  width:80%;
+  height:70px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sidebar-menu a {
+  position: relative;
+  width:100%;
+  height:100%;
+  display: block;
+  border-radius: 12px;
+  color: #333;
+  text-decoration: none;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 70px;
+  text-align: center;
+}
+
+.sidebar-menu a.active {
+  background: #4a90e2;
+  color: white;
+}
+.sidebar-menu a.active:hover {
+  background: #4a90e2;
+  color: white;
+}
+
+.sidebar-menu a:hover {
+  background: lightcyan;
+}
+
+
+/* 右侧内容 */
+.content {
+    position:absolute;
+    width: 100%;
+    height: 100%;
+  left: 240px;
+  flex: 1;
+  padding: 40px;
+}
+
+.logout-btn:hover {
+  background: #ff4444;
+}
+
+.logout-btn {
+  position: absolute;
+
+  bottom: 20px;
+  left: 10%;
+  right: 10%;
+  width: 80%;
+  height:80px;
+  font-weight: bold;
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 24px;
+}

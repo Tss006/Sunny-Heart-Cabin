@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心晴小屋 - 首页</title>
+  <link rel="stylesheet" href="css/index/index.css">
+  <link rel="stylesheet" href="css/index/user.css">
+  <link rel="stylesheet" href="css/index/mood.css">
+  <link rel="stylesheet" href="css/index/chat.css">
+  <link rel="stylesheet" href="css/index/test.css">
+  <link rel="stylesheet" href="css/index/music.css">
+  <script src="node_modules/axios/dist/axios.min.js"></script>
+
+  
+</head>
+
+<body>
+
+<!-- 左侧导航（唯一导航） -->
+<div class="sidebar">
+  <div class="logo">心晴小屋</div>
+  <ul class="sidebar-menu">
+    <li><a href="#" onclick="showPage('home', this)" class="active">首页</a></li>
+    <li><a href="#" onclick="showPage('user', this)">个人中心</a></li>
+    <li><a href="#" onclick="showPage('chat', this)">AI 聊天</a></li>
+    <li><a href="#" onclick="showPage('mood', this)">心情日记</a></li>
+    <li><a href="#" onclick="showPage('test', this)">心理测试</a></li>
+    <li><a href="#" onclick="showPage('music', this)">治愈音乐</a></li>
+  </ul>
+  <button id="logout" class="logout-btn">退出登录</button>
+</div>
+
+<!-- 右侧：只显示文字 → 你要的干净效果 -->
+<div class="content">
+  <div id="home-content">
+    <h1>欢迎来到心晴小屋</h1>
+    <p style="margin-top:10px; font-size:18px;">请从左侧菜单选择功能</p>
+  </div>
+  <div id="user-content" style="display:none;">
+    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+    <div class="user-container">
+      <!-- 欢迎头部 -->
+      <div class="welcome-header">
+        <div class="avatar" onclick="changeAvatar()">
+          <img src="images/avatar-default.png" class="avatar_img" id="avatarImg">
+        </div>
+        <div class="welcome-text">
+          <h1>欢迎回来，心晴用户！</h1>
+          <p>今天又是美好的一天，继续守护你的心灵健康</p>
+        </div>
+      </div>
+
+      <!-- 用户信息卡片 -->
+      <div class="user-profile-card">
+        <div class="profile-header">
+          <h2>📋 个人资料</h2>
+        </div>
+        <div class="profile-info">
+          <div class="info-item">
+            <span class="label">昵称：</span>
+            <span class="value" id="nickname">心晴小屋用户</span>
+          </div>
+          <div class="info-item">
+            <span class="label">年龄：</span>
+            <span class="value" id="age">25</span>
+          </div>
+          <div class="info-item">
+            <span class="label">性别：</span>
+            <span class="value" id="gender">女</span>
+          </div>
+          <div class="info-item">
+            <span class="label">个性签名：</span>
+            <span class="value" id="signature">守护心灵健康，一起前行</span>
+          </div>
+          <div class="info-item">
+            <span class="label">注册时间：</span>
+            <span class="value">2024年1月1日</span>
+          </div>
+          <div class="info-item">
+            <span class="label">会员等级：</span>
+            <span class="value">普通会员</span>
+          </div>
+          <div class="info-item">
+            <span class="label">当前状态：</span>
+            <span class="value">已登录</span>
+          </div>
+        </div>
+      </div>
+      <div class="edit-profile-section">
+        <button id="editProfileBtn" class="edit-btn">编辑资料</button>
+      </div>
+      <!-- 统计面板 -->
+      <div class="stats-panel">
+        <h2>📊 我的统计</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>日记条数</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧠</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>测试次数</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎵</div>
+            <div class="stat-content">
+              <h3></h3>
+              <p>音乐播放</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 功能中心 -->
+      <div class="features-section">
+        <h2>🚀 功能中心</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <h4>我的报告</h4>
+            <p>查看历史测评结果</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚙️</div>
+            <h4>设置</h4>
+            <p>账号与隐私设置</p>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  <div id="chat-content" style="display:none;">
+    <h1>AI 聊天</h1>
+    <p>这里是AI聊天功能页面。</p>
+  </div>
+  <div id="mood-content" style="display:none;">
+    <h1>心情日记</h1>
+    <p>这里是心情日记功能页面。</p>
+  </div>
+  <div id="test-content" style="display:none;">
+    <h1>心理测试</h1>
+    <p>这里是心理测试功能页面。</p>
+  </div>
+  <div id="music-content" style="display:none;">
+    <h1>治愈音乐</h1>
+    <p>这里是治愈音乐功能页面。</p>
+  </div>
+</div>
+  <script src="js/index/index.js"></script>
+  <script src="js/index/user.js"></script>
+  <script src="js/index/mood.js"></script>
+  <script src="js/index/chat.js"></script>
+  <script src="js/index/test.js"></script>
+  <script src="js/index/music.js"></script>
+</body>
+</html>
