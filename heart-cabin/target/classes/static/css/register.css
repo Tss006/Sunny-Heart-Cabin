@@ -39,7 +39,7 @@ body {
 
 /* 登录页单独背景图 */
 body.login-page {
-  background: url("../image/login_bg.jpg") no-repeat center center !important;
+  background: url("../images/login_bg.jpg") no-repeat center center !important;
   background-size: cover !important;
   background-attachment: fixed !important;
   position: relative !important;

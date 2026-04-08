@@ -1,10 +1,18 @@
 spring:
+  # 数据库配置
   datasource:
-    url: jdbc:mysql://rm-cn-kc24qag5i0001fno.rwlb.cn-beijing.rds.aliyuncs.com:3306/heart_cabin?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://rm-cn-kc24qag5i0001fno.rwlb.rds.aliyuncs.com:3306/heart_cabin?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
     username: heart_cabin_root
     password: 2694642214t@
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
-mybatis:
+  # 静态资源放行（解决图片404）
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+# MyBatis / MyBatis-Plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.example.heartcabin.entity
