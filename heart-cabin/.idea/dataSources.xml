@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-<<<<<<< Updated upstream
     <data-source source="LOCAL" name="heart_cabin@rm-cn-kc24qag5i0001fno.rwlb.rds.aliyuncs.com" uuid="4218e21e-bf57-41ed-851d-3ae65ede13ec">
-=======
-    <data-source source="LOCAL" name="heart_cabin@rm-cn-kc24qag5i0001fno.rwlb.cn-beijing.rds.aliyuncs.com" uuid="8e4c0e50-a8c5-44c8-b114-7040a901ee30">
->>>>>>> Stashed changes
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
       <remarks>$PROJECT_DIR$/src/main/resources/application.yml</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-<<<<<<< Updated upstream
       <jdbc-url>jdbc:mysql://rm-cn-kc24qag5i0001fno.rwlb.rds.aliyuncs.com:3306/heart_cabin?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=Asia/Shanghai&amp;allowPublicKeyRetrieval=true&amp;useSSL=false</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
-=======
-      <jdbc-url>jdbc:mysql://rm-cn-kc24qag5i0001fno.rwlb.cn-beijing.rds.aliyuncs.com:3306/heart_cabin?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=Asia&amp;allowPublicKeyRetrieval=true</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
->>>>>>> Stashed changes
         <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
