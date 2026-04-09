@@ -31,6 +31,7 @@
     </properties>
 
     <dependencies>
+        <!-- JJWT 核心依赖（最新稳定版） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -40,11 +41,13 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <version>0.11.5</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
+            <scope>runtime</scope>
         </dependency>
         <!-- 阿里云通义千问 AI 真实对话依赖 -->
         <dependency>

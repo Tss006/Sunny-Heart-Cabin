@@ -10,6 +10,10 @@
         <module name="heart-cabin" />
       </profile>
     </annotationProcessing>
+<<<<<<< Updated upstream
+=======
+    <bytecodeTargetLevel target="23" />
+>>>>>>> Stashed changes
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
