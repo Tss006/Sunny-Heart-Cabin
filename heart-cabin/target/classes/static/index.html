@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/index/chat.css">
   <link rel="stylesheet" href="css/index/test.css">
   <link rel="stylesheet" href="css/index/music.css">
-  <script src="node_modules/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   
 </head>
@@ -137,9 +137,33 @@
       
     </div>
   </div>
+
+
+  
   <div id="chat-content" style="display:none;">
-    <h1>AI 聊天</h1>
-    <p>这里是AI聊天功能页面。</p>
+    <div class="chat-main-wrapper">
+      <!-- 左侧对话列表 -->
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+          <span>💬 对话列表</span>
+          <button class="chat-new-btn" id="newChatBtn">+ 新建对话</button>
+        </div>
+        <ul class="chat-session-list" id="chatSessionList">
+          <!-- 动态插入对话项 -->
+        </ul>
+      </div>
+      <!-- 右侧聊天窗口 -->
+      <div class="chat-window">
+        <div class="chat-window-header" id="chatTitle">AI 聊天</div>
+        <div class="chat-history" id="chatHistory">
+          <!-- 动态插入消息内容 -->
+        </div>
+        <div class="chat-input-bar">
+          <textarea id="chatInput" placeholder="请输入你的问题..." rows="1"></textarea>
+          <button id="sendChatBtn">发送</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="mood-content" style="display:none;">
     <h1>心情日记</h1>
@@ -154,11 +178,11 @@
     <p>这里是治愈音乐功能页面。</p>
   </div>
 </div>
-  <script src="js/index/index.js" type="module"></script>
-  <script src="js/index/user.js" type="module"></script>
-  <script src="js/index/mood.js" type="module"></script>
-  <script src="js/index/chat.js" type="module"></script>
-  <script src="js/index/test.js" type="module"></script>
-  <script src="js/index/music.js" type="module"></script>
+  <script src="js/index/index.js"></script>
+  <script src="js/index/user.js"></script>
+  <script src="js/index/mood.js"></script>
+  <script src="js/index/chat.js"></script>
+  <script src="js/index/test.js"></script>
+  <script src="js/index/music.js"></script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+
 package com.example.heartcabin.service;
 
 import com.example.heartcabin.entity.ChatHistory;
@@ -75,5 +76,50 @@ public class ChatService {
 
     public List<ChatHistory> getHistory(Long userId) {
         return chatHistoryMapper.getByUserId(userId);
+    }
+
+        /**
+     * AI总结历史内容
+     */
+    public ChatHistory summarizeHistory(Long userId, String historyText) {
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("model", "qwen-turbo");
+            Map<String, Object> input = new HashMap<>();
+            input.put("messages", new Object[]{
+                    Map.of("role", "system", "content", "你是心晴小屋专业AI心理师，请你将以下聊天内容进行简要总结，突出用户的主要情绪和问题，字数不超过60字："),
+                    Map.of("role", "user", "content", historyText)
+            });
+            body.put("input", input);
+            body.put("parameters", Map.of("result_format", "message"));
+
+            Map<String, Object> response = restTemplate.postForObject(
+                    URL,
+                    new org.springframework.http.HttpEntity<>(body,
+                            new org.springframework.http.HttpHeaders() {{
+                                set("Authorization", "Bearer " + API_KEY);
+                                set("Content-Type", "application/json");
+                            }}),
+                    Map.class
+            );
+            Map<String, Object> output = (Map<String, Object>) response.get("output");
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) output.get("choices");
+            Map<String, Object> choice = choices.get(0);
+            Map<String, String> message = (Map<String, String>) choice.get("message");
+            String summary = message.get("content");
+
+            ChatHistory chat = new ChatHistory();
+            chat.setUserId(userId);
+            chat.setUserMessage("[历史总结]");
+            chat.setAiReply(summary);
+            chatHistoryMapper.add(chat);
+            return chat;
+        } catch (Exception e) {
+            ChatHistory chat = new ChatHistory();
+            chat.setUserId(userId);
+            chat.setUserMessage("[历史总结]");
+            chat.setAiReply("AI总结失败");
+            return chat;
+        }
     }
 }

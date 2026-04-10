@@ -5,40 +5,79 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0acb8ebc-1577-42f5-88f8-3918ac6c4d2a" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/static/images/avatar-default.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/HeartCabinApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/HeartCabinApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/LoginInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/LoginInterceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/MvcConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/MvcConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/4218e21e-bf57-41ed-851d-3ae65ede13ec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/4218e21e-bf57-41ed-851d-3ae65ede13ec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/common/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/common/JwtUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/CorsConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/LoginInterceptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/MvcConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/controller/CounselorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/controller/CounselorController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/entity/ChatHistory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/entity/ChatHistory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/entity/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/mapper/UserMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/login.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/login.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/heartcabin/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/index/chat.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/index/chat.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/register.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/register.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/image/home_banner.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/images/home_banner.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/image/login_bg.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/images/login_bg.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/js/index/chat.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/js/index/chat.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/js/index/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/js/index/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/js/index/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/js/index/user.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/js/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/js/login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/js/register.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/js/register.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/login.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/register.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/HeartCabinApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/HeartCabinApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/LoginInterceptor.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/LoginInterceptor.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/MvcConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/MvcConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/BusinessException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/BusinessException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/GlobalExceptionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/GlobalExceptionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/JwtUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/JwtUtil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/Result.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/common/Result.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/CorsConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/LoginInterceptor.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/MvcConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/config/SecurityConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/ChatController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/ChatController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/CounselorController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/CounselorController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/DiaryController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/DiaryController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/MusicController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/MusicController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/PhysicalDataController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/PhysicalDataController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/TestController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/TestController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/TestHistoryController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/TestHistoryController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/controller/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/ChatHistory.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/ChatHistory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/Diary.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/Diary.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/Music.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/Music.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/PhysicalData.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/PhysicalData.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/TestHistory.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/TestHistory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/TestQuestion.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/TestQuestion.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/entity/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/DiaryMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/DiaryMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/MusicMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/MusicMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/PhysicalDataMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/PhysicalDataMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/TestHistoryMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/TestHistoryMapper.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/UserMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/mapper/UserMapper.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/ChatService$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/ChatService$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/css/login.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/css/login.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/ChatService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/ChatService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/DiaryService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/DiaryService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/MusicService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/MusicService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/PhysicalDataService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/PhysicalDataService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/TestHistoryService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/TestHistoryService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/TestService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/TestService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/impl/PhysicalDataServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/impl/PhysicalDataServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/impl/TestServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/heartcabin/service/impl/TestServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/css/index/chat.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/css/index/chat.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/static/css/register.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/css/register.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/image/home_banner.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/image/login_bg.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/js/index/chat.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/js/index/chat.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/js/index/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/js/index/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/js/index/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/js/index/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/js/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/js/login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/js/register.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/js/register.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/static/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/login.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/static/register.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/example/heartcabin/HeartCabinApplicationTests.class" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,6 +188,9 @@
       <workItem from="1775605570394" duration="93000" />
       <workItem from="1775605671943" duration="239000" />
       <workItem from="1775642523129" duration="12451000" />
+      <workItem from="1775711145024" duration="7417000" />
+      <workItem from="1775799345446" duration="5279000" />
+      <workItem from="1775823897525" duration="4886000" />
     </task>
     <servers />
   </component>

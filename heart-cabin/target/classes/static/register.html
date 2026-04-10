@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>心晴小屋 - 注册</title>
   <link rel="stylesheet" href="css/register.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   
 
@@ -36,21 +37,22 @@
     </div>
 
     <form class="auth-form" id="registerForm">
+      <div id="error-message" class="error-message" style="display: none;"></div>
       <div class="form-group">
         <label>昵称</label>
-        <input type="text" placeholder="请输入昵称" required>
+        <input id="register_nickname" type="text" placeholder="请输入昵称" required>
       </div>
       <div class="form-group">
         <label>账号</label>
-        <input type="text" placeholder="请输入账号" required>
+        <input id="register_username" type="text" placeholder="请输入账号" required>
       </div>
       <div class="form-group">
         <label>密码</label>
-        <input type="password" placeholder="请输入密码" required>
+        <input id="register_password" type="password" placeholder="请输入密码" required>
       </div>
       <div class="form-group">
         <label>确认密码</label>
-        <input type="password" placeholder="请再次输入密码" required>
+        <input id="register_password2" type="password" placeholder="请再次输入密码" required>
       </div>
 
       <button type="submit" class="btn-primary">完成注册</button>
@@ -60,6 +62,6 @@
       <a href="login.html" class="link-text">已有账号？前往登录</a>
     </div>
   </div>
-<script src="js/register.js" type="module"></script>
+<script src="js/register.js"></script>
 </body>
 </html>

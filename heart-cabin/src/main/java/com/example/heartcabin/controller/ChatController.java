@@ -1,3 +1,5 @@
+
+    
 package com.example.heartcabin.controller;
 
 import com.example.heartcabin.common.Result;
@@ -7,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Map;
 
 import java.util.List;
 
@@ -16,6 +22,14 @@ public class ChatController {
 
     @Autowired
     private ChatService chatService;
+
+    @PostMapping("/summary")
+    public Result<ChatHistory> summary(@RequestBody Map<String, Object> param) {
+        Long userId = param.get("userId") == null ? null : Long.valueOf(param.get("userId").toString());
+        String historyText = param.get("historyText") == null ? "" : param.get("historyText").toString();
+        ChatHistory summary = chatService.summarizeHistory(userId, historyText);
+        return Result.success("总结成功", summary);
+    }
 
     @GetMapping("/chat")
     public Result<ChatHistory> chat(Long userId, String message) {

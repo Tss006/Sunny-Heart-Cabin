@@ -1,3 +1,4 @@
+package com.example.heartcabin.controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import com.example.heartcabin.common.Result;

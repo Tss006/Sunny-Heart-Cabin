@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class ChatHistory {
     private Long id;
     private Long userId;
+    private Long chat_id;
     private String userMessage;
     private String aiReply;
     private LocalDateTime createTime;

@@ -44,6 +44,8 @@ document.getElementById('editProfileBtn').addEventListener('click', function() {
     isEditing = true;
   } else {
     // 保存并退出编辑模式
+    // 收集数据
+    const user = JSON.parse(localStorage.getItem('user'))?.user || {};
     editableFields.forEach(fieldId => {
       const input = document.getElementById(fieldId + 'Input');
       const value = input.value;
@@ -52,10 +54,24 @@ document.getElementById('editProfileBtn').addEventListener('click', function() {
       span.id = fieldId;
       span.textContent = value;
       input.parentNode.replaceChild(span, input);
+      user[fieldId] = value;
     });
     btn.textContent = '编辑';
     isEditing = false;
-    // 可以在这里添加保存到服务器的逻辑
-    console.log('个人信息已保存');
+    // 发送到后端
+    const token = localStorage.getItem('token');
+    axios.post('/user/info/update', user, {
+      headers: { token: token }
+    }).then(res => {
+      if (res.data && res.data.code === 200) {
+        alert('资料保存成功');
+        // 更新本地缓存
+        localStorage.setItem('user', JSON.stringify({user}));
+      } else {
+        alert(res.data.msg || '资料保存失败');
+      }
+    }).catch(() => {
+      alert('网络错误，资料保存失败');
+    });
   }
 });

@@ -267,3 +267,12 @@ body.login-page::before {
   color: var(--primary) !important;
   text-decoration: none !important;
 }
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #fcc;
+  font-size: 13px;
+  text-align: center;
+}
