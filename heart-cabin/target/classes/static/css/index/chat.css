@@ -12,6 +12,7 @@
 	overflow: hidden;
 }
 .chat-sidebar {
+	align-items: center;
 	width: 240px;
 	background: rgba(255,255,255,0.85);
 	backdrop-filter: blur(10px);
@@ -19,6 +20,9 @@
 	display: flex;
 	flex-direction:column;
 	box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+	gap:16px;
+	padding-top:16px;
+	padding-bottom:16px;
 }
 .chat-sidebar-header {
 	display: flex;
@@ -26,10 +30,12 @@
 	align-items: center;
 	padding: 28px 20px 16px 20px;
 	font-weight: 700;
-	font-size: 18px;
+	font-size: 30px;
 	color: #4a90e2;
+	align-items: center;
 }
 .chat-new-btn {
+	align-items: center;
 	width: 120px;
 	height: 40px;
 	background: rgb(15, 95, 254);
@@ -45,22 +51,40 @@
 	background: #4a90e2;
 }
 .chat-session-list {
+	width:100%;
   flex: 1;
   overflow-y: auto;
   margin: 0;
   padding: 0 0 10px 0;
   list-style: none;
+  padding-bottom: 10px;
+  padding-top:10px;
 }
 .chat-session-list li {
+	position: relative;
+	text-align: center;
+	min-height: 60px;
+	width:80%;
+	left:10%;
 	padding: 16px 22px;
 	cursor: pointer;
-	border-bottom: 1px solid #ececec;
 	transition: background 0.2s;
 	display: flex;
 	align-items: center;
 	border-radius: 12px;
 }
-.chat-session-list li.active, .chat-session-list li:hover {
+.chat-session-list li.active {
+	background: #4a90e2;
+	color:#fff;
+}
+.chat-session-list li.active:hover{
+	background: #4a90e2;
+	color:#fff;
+}
+.chat-session-list li.active .session-title {
+	color: #fff;
+}
+.chat-session-list li:hover {
 	background: #e6f0ff;
 }
 .chat-session-list .session-title {

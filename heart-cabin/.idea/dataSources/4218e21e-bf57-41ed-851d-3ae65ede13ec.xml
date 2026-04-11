@@ -1241,7 +1241,7 @@ DYNAMIC</Options>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
     <column id="310" parent="301" name="id">
-      <AutoIncrement>35</AutoIncrement>
+      <AutoIncrement>110</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
@@ -1268,7 +1268,7 @@ DYNAMIC</Options>
     </column>
     <column id="315" parent="301" name="chat_id">
       <Position>6</Position>
-      <StoredType>int|0s</StoredType>
+      <StoredType>varchar(255)|0s</StoredType>
     </column>
     <index id="316" parent="301" name="PRIMARY">
       <ColNames>id</ColNames>

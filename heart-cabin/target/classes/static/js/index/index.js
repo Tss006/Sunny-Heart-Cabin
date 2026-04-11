@@ -72,6 +72,7 @@ function showPage(page, link) {
   selectedPage.style.display = 'block';
   // AI聊天页面自动问候
   if (selectedPage.id === 'chat-content') {
+    // 新建会话前先总结
     if (typeof startNewChatSession === 'function') startNewChatSession();
   }
   // 更新active类
@@ -100,6 +101,19 @@ window.addEventListener('DOMContentLoaded', function() {
   var newChatBtn = document.getElementById('newChatBtn');
   if (newChatBtn) {
     newChatBtn.addEventListener('click', function() {
+      // 判断当前会话是否有有效消息，有则总结，无则直接新建
+      var chatHistory = document.getElementById('chatHistory');
+      var hasMsg = false;
+      if (chatHistory) {
+        var msgs = chatHistory.querySelectorAll('.chat-message');
+        msgs.forEach(function(msg) {
+          var content = msg.querySelector('.bubble')?.innerText || '';
+          if (content.trim() !== '') hasMsg = true;
+        });
+      }
+      if (hasMsg && typeof summarizeAndShowSession === 'function') {
+        summarizeAndShowSession();
+      }
       if (typeof startNewChatSession === 'function') startNewChatSession();
     });
   }

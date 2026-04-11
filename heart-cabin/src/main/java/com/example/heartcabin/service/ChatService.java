@@ -22,7 +22,24 @@ public class ChatService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public ChatHistory sendMessage(Long userId, String userMessage) {
+
+        /**
+     * 获取所有历史总结（每个 chatId 最新一条总结）
+     */
+    public List<ChatHistory> getSummaries(Long user_id) {
+        return chatHistoryMapper.getSummaries(user_id);
+    }
+
+    /**
+     * 获取指定 chatId 的所有聊天记录
+     */
+
+    public List<ChatHistory> getHistoryByChatId(Long user_id, String chat_id) {
+        return chatHistoryMapper.getByUserIdAndChatId(user_id, chat_id);
+    }
+
+
+    public ChatHistory sendMessage(Long user_id, String chat_id, String user_message) {
         try {
             // 1. 构造请求
             Map<String, Object> body = new HashMap<>();
@@ -31,7 +48,7 @@ public class ChatService {
             Map<String, Object> input = new HashMap<>();
             input.put("messages", new Object[]{
                     Map.of("role", "system", "content", "你是心晴小屋专业AI心理师，温柔、耐心、专业。"),
-                    Map.of("role", "user", "content", userMessage)
+                    Map.of("role", "user", "content", user_message)
             });
 
             body.put("input", input);
@@ -57,37 +74,36 @@ public class ChatService {
 
             // 4. 保存记录
             ChatHistory chat = new ChatHistory();
-            chat.setUserId(userId);
-            chat.setUserMessage(userMessage);
-            chat.setAiReply(aiReply);
+            chat.setUser_id(user_id);
+            chat.setUser_message(user_message);
+            chat.setAi_reply(aiReply);
+            chat.setChat_id(chat_id);
             chatHistoryMapper.add(chat);
 
             return chat;
 
         } catch (Exception e) {
             // 出错时返回友好提示
+            System.out.println(e.getMessage());
             ChatHistory chat = new ChatHistory();
-            chat.setUserId(userId);
-            chat.setUserMessage(userMessage);
-            chat.setAiReply("我在这里听你说，有任何情绪都可以告诉我，我会一直陪着你。");
+            chat.setUser_id(user_id);
+            chat.setUser_message(user_message);
+            chat.setAi_reply("ai暂时无法使用");
             return chat;
         }
     }
 
-    public List<ChatHistory> getHistory(Long userId) {
-        return chatHistoryMapper.getByUserId(userId);
-    }
 
         /**
      * AI总结历史内容
      */
-    public ChatHistory summarizeHistory(Long userId, String historyText) {
+    public ChatHistory summarizeHistory(Long user_id, String chat_id, String historyText) {
         try {
             Map<String, Object> body = new HashMap<>();
             body.put("model", "qwen-turbo");
             Map<String, Object> input = new HashMap<>();
             input.put("messages", new Object[]{
-                    Map.of("role", "system", "content", "你是心晴小屋专业AI心理师，请你将以下聊天内容进行简要总结，突出用户的主要情绪和问题，字数不超过60字："),
+                    Map.of("role", "system", "content", "你是心晴小屋专业AI心理师，请你将以下聊天内容进行主题总结，字数不超过10个字"),
                     Map.of("role", "user", "content", historyText)
             });
             body.put("input", input);
@@ -109,16 +125,18 @@ public class ChatService {
             String summary = message.get("content");
 
             ChatHistory chat = new ChatHistory();
-            chat.setUserId(userId);
-            chat.setUserMessage("[历史总结]");
-            chat.setAiReply(summary);
+            chat.setUser_id(user_id);
+            chat.setChat_id(chat_id);
+            chat.setUser_message("History_Summarize");
+            chat.setAi_reply(summary);
             chatHistoryMapper.add(chat);
             return chat;
         } catch (Exception e) {
+            System.out.println("总结对话历史失败: " + e.getMessage());
             ChatHistory chat = new ChatHistory();
-            chat.setUserId(userId);
-            chat.setUserMessage("[历史总结]");
-            chat.setAiReply("AI总结失败");
+            chat.setUser_id(user_id);
+            chat.setUser_message("[历史总结]");
+            chat.setAi_reply("AI总结失败");
             return chat;
         }
     }
