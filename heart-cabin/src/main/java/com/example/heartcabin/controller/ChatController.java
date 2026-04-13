@@ -27,7 +27,6 @@ public class ChatController {
 
     @PostMapping("/summary")
     public Result<ChatHistory> summary(@RequestBody Map<String, Object> param) {
-        System.out.println("zzzz");
         Long user_id = param.get("user_id") == null ? null : Long.valueOf(param.get("user_id").toString());
         String chat_id = param.get("chat_id") == null ? null : param.get("chat_id").toString();
         String historyText = param.get("historyText") == null ? "" : param.get("historyText").toString();
@@ -56,9 +55,7 @@ public class ChatController {
      */
     @GetMapping("/historyByChatId")
     public Result<List<ChatHistory>> getHistoryByChatId(Long user_id, String chat_id) {
-        System.out.println(user_id+" "+chat_id);
         List<ChatHistory> historyList = chatService.getHistoryByChatId(user_id, chat_id);
-        System.out.println(historyList);
         return Result.success("查询成功", historyList);
     }
 

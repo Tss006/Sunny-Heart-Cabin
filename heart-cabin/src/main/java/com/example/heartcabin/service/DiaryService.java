@@ -16,11 +16,15 @@ public class DiaryService {
         return diaryMapper.add(diary) > 0;
     }
 
-    public List<Diary> getList(Long userId) {
-        return diaryMapper.listByUserId(userId);
+    public List<Diary> getList(Long user_id) {
+        return diaryMapper.listByUserId(user_id);
     }
 
-    public boolean delete(Long id, Long userId) {
-        return diaryMapper.delete(id, userId) > 0;
+    public Diary getByDiaryId(String diary_id) {
+        return diaryMapper.getByDiaryId(diary_id);
+    }
+
+    public boolean delete(Long id, Long user_id) {
+        return diaryMapper.delete(id, user_id) > 0;
     }
 }

@@ -42,10 +42,11 @@ public class TestController {
 
         // 3. 自动保存到测评历史
         TestHistory history = new TestHistory();
-        history.setUserId(userId);
-        history.setTotalScore(totalScore);
+        history.setUser_id(userId);
+        history.setScore(totalScore);
         history.setLevel(level);
         history.setAdvice(advice);
+        history.setCreate_time(java.time.LocalDateTime.now());
         testHistoryService.save(history);
 
         // 4. 封装返回

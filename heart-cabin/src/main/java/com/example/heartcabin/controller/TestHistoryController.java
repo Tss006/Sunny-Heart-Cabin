@@ -18,6 +18,9 @@ public class TestHistoryController {
     // 保存测评报告
     @PostMapping("/save")
     public Result<?> save(@RequestBody TestHistory history) {
+        if (history != null && history.getCreate_time() == null) {
+            history.setCreate_time(java.time.LocalDateTime.now());
+        }
         boolean ok = testHistoryService.save(history);
         if (ok) {
             return Result.success("报告已保存", null);

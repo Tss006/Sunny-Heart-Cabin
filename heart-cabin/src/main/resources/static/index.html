@@ -167,16 +167,186 @@
     </div>
   </div>
   <div id="mood-content" style="display:none;">
-    <h1>心情日记</h1>
-    <p>这里是心情日记功能页面。</p>
+    <div class="mood-container">
+      <h1>心情日记</h1>
+      <div class="mood-form">
+        <input id="moodTitle" type="text" placeholder="给日记起个标题吧~" />
+        <textarea id="moodInput" placeholder="写下你的心情..." rows="4"></textarea>
+        <button id="publishMoodBtn">发布日记</button>
+      </div>
+      <div class="mood-list-section">
+        <h2>我的日记</h2>
+        <ul id="moodList" class="mood-list"></ul>
+      </div>
+    </div>
+  </div>
+  <div id="moodDetailModal" class="mood-modal" style="display:none;">
+    <div class="mood-modal-backdrop" id="moodModalBackdrop"></div>
+    <div class="mood-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="moodModalTitle">
+      <button type="button" class="mood-modal-close" id="moodModalClose">×</button>
+      <div class="mood-modal-header">
+        <h3 id="moodModalTitle"></h3>
+        <div class="mood-modal-date" id="moodModalDate"></div>
+      </div>
+      <div class="mood-modal-content" id="moodModalContent"></div>
+    </div>
   </div>
   <div id="test-content" style="display:none;">
-    <h1>心理测试</h1>
-    <p>这里是心理测试功能页面。</p>
+    <div class="test-page">
+      <div class="test-hero">
+        <div class="test-hero-copy">
+          <div class="test-kicker">心理测试 · 逐题作答</div>
+          <h1>你最近的心理状态如何？</h1>
+          <p>参考单题流式布局，逐步完成测试，最后生成测评结果与建议。</p>
+          <div class="test-toolbar">
+            <button type="button" class="test-info-btn" id="testInfoBtn">测试说明</button>
+          </div>
+        </div>
+        <div class="test-hero-orbit" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      
+
+      <div class="test-quiz-shell">
+        <section class="test-quiz-card">
+          <div class="test-progress-row">
+            <div class="test-progress-text" id="testProgressText">第 1 / 18 题</div>
+            <div class="test-progress-track" aria-hidden="true">
+              <div class="test-progress-bar" id="testProgressBar"></div>
+            </div>
+          </div>
+
+          <div class="test-question-card" id="testQuestionCard">
+            <div class="test-question-type">单选题</div>
+            <h2 id="testQuestionTitle">正在加载题目...</h2>
+            <p class="test-question-tip">请选择最接近你真实感受的一项</p>
+            <div class="test-options" id="testOptions"></div>
+          </div>
+
+          <div class="test-nav-row">
+            <button type="button" class="test-nav-btn ghost" id="testPrevBtn">上一题</button>
+            <div class="test-nav-hint" id="testNavHint">选择答案后继续下一题</div>
+            <button type="button" class="test-nav-btn primary" id="testNextBtn">下一题</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="test-result-card" id="testResultCard" style="display:none;">
+        <div class="test-result-badge">测评结果</div>
+        <h2 id="testResultLevel"></h2>
+        <p id="testResultAdvice"></p>
+        <div class="test-result-score">
+          <span>总分</span>
+          <strong id="testResultScore">0</strong>
+        </div>
+        <div class="test-result-actions">
+          <button type="button" class="test-nav-btn primary" id="testAiAnalyzeBtn">AI 分析</button>
+          <button type="button" class="test-nav-btn primary" id="testRestartBtn">重新测试</button>
+        </div>
+      </section>
+
+      <div class="test-guide-modal" id="testGuideModal" style="display:none;">
+        <div class="test-guide-backdrop" id="testGuideBackdrop"></div>
+        <div class="test-guide-dialog" role="dialog" aria-modal="true" aria-labelledby="testGuideTitle">
+          <button type="button" class="test-guide-close" id="testGuideClose">×</button>
+          <div class="test-guide-title" id="testGuideTitle">测试说明</div>
+          <p>每题请选择最接近你当前真实感受的选项。完成后会根据总分给出状态判断与建议。</p>
+          <div class="test-guide-list">
+            <div>单题切换，保持专注</div>
+            <div>点击选项后自动进入下一题</div>
+            <div>最后一题会自动提交</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="music-content" style="display:none;">
-    <h1>治愈音乐</h1>
-    <p>这里是治愈音乐功能页面。</p>
+    <div class="music-page">
+      <section class="music-player-bar">
+        <div class="music-player-copy">
+          <div class="music-kicker">治愈音乐 · 轻松聆听</div>
+          <div class="music-current-row">
+            <div class="music-current-copy">
+              <h1>让音乐帮你慢下来</h1>
+              <p>顶部播放栏支持播放、暂停、上一首、下一首和播放模式切换；下方可按歌曲名称搜索，未搜索时展示全部歌曲。</p>
+            </div>
+            <div class="music-stats">
+              <div class="music-stat">
+                <strong id="musicTotalCount">0</strong>
+                <span>首歌曲</span>
+              </div>
+              <div class="music-stat">
+                <strong id="musicFilteredCount">0</strong>
+                <span>当前筛选</span>
+              </div>
+            </div>
+          </div>
+          <div class="music-current-track">
+            <span class="music-now-label">当前播放</span>
+            <h2 id="musicCurrentTitle">请选择一首歌曲</h2>
+            <p id="musicCurrentMeta">点击下方歌曲即可开始播放</p>
+            <div class="music-current-status-row">
+              <span class="music-status" id="musicCurrentStatus">等待播放</span>
+              <div class="music-progress">
+                <div class="music-progress-track" aria-hidden="true">
+                  <div class="music-progress-bar" id="musicProgressBar"></div>
+                </div>
+                <div class="music-progress-text">
+                  <span id="musicCurrentTime">00:00</span>
+                  <span id="musicDuration">00:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="music-player-actions">
+          <div class="music-controls">
+            <button type="button" class="music-control-btn secondary" id="musicPrevBtn">上一首</button>
+            <button type="button" class="music-control-btn primary" id="musicPlayBtn">播放</button>
+            <button type="button" class="music-control-btn secondary" id="musicPauseBtn">暂停</button>
+            <button type="button" class="music-control-btn secondary" id="musicNextBtn">下一首</button>
+          </div>
+          <div class="music-modes">
+            <span class="music-mode-label">播放模式</span>
+            <div class="music-mode-switch" role="group" aria-label="播放模式">
+              <button type="button" class="music-mode-btn active" data-music-mode="list" aria-pressed="true">列表循环</button>
+              <button type="button" class="music-mode-btn" data-music-mode="single" aria-pressed="false">单曲循环</button>
+              <button type="button" class="music-mode-btn" data-music-mode="random" aria-pressed="false">随机播放</button>
+            </div>
+          </div>
+        </div>
+
+        <audio id="musicAudio" preload="metadata"></audio>
+      </section>
+
+      <section class="music-search-card">
+        <div class="music-search-header">
+          <div>
+            <h3>搜索歌曲</h3>
+            <p>输入歌曲名称即可筛选，空白时展示全部歌曲。</p>
+          </div>
+          <div class="music-search-count" id="musicSearchCount">共 0 首</div>
+        </div>
+        <div class="music-search-row">
+          <input id="musicSearchInput" type="search" placeholder="搜索歌曲名称" />
+          <button type="button" id="musicClearSearchBtn">清空</button>
+        </div>
+      </section>
+
+      <section class="music-library-card">
+        <div class="music-library-header">
+          <h3>歌曲列表</h3>
+          <span id="musicDisplayCount">0 首</span>
+        </div>
+        <div class="music-empty-state" id="musicEmptyState" style="display:none;">暂无匹配歌曲，试试其他关键词</div>
+        <div class="music-list" id="musicList"></div>
+      </section>
+    </div>
   </div>
 </div>
   <script src="js/index/index.js"></script>

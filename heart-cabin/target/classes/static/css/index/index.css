@@ -315,7 +315,7 @@ body {
 
 /* 左侧导航 */
 .sidebar {
-  width: 240px;
+  width: 15%;
   background: white;
   position: fixed;
   height: 100vh;
@@ -380,9 +380,9 @@ body {
 /* 右侧内容 */
 .content {
     position:absolute;
-    width: 100%;
+    width: 85%;
     height: 100%;
-  left: 240px;
+  left:15%;
   flex: 1;
   padding: 40px;
 }

@@ -7,6 +7,12 @@ if (!localStorage.getItem("isLogin")) {
 
 
 function showPage(page, link) {
+  // 检测是否从 AI 聊天页面切换到其他页面
+  const currentPage = document.querySelector('.content > div:not([style*="display: none"])');
+  if (currentPage && currentPage.id === 'chat-content' && page !== 'chat') {
+    if (typeof summarizeAndShowSession === 'function') summarizeAndShowSession();
+  }
+
   // 隐藏所有内容
   document.getElementById('home-content').style.display = 'none';
   document.getElementById('user-content').style.display = 'none';
@@ -14,6 +20,7 @@ function showPage(page, link) {
   document.getElementById('mood-content').style.display = 'none';
   document.getElementById('test-content').style.display = 'none';
   document.getElementById('music-content').style.display = 'none';
+
   // 显示选中的
   const token = localStorage.getItem("token");
   const selectedPage = document.getElementById(page + '-content');

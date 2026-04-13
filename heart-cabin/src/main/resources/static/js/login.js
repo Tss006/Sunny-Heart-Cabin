@@ -46,6 +46,7 @@ form.addEventListener("submit", function (e) {
       localStorage.setItem("isLogin", "true");
       localStorage.setItem("token",data.data.token);
       localStorage.setItem("user", JSON.stringify(data.data)); // 保存用户信息
+      localStorage.setItem("user_id", data.data.user && data.data.user.id ? String(data.data.user.id) : "");
       location.href = "index.html";
     } else {
       // 登录失败

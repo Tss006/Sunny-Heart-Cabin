@@ -5,7 +5,8 @@ const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 const chatHistory = document.getElementById('chatHistory');
 
-let user_id = localStorage.getItem('user_id') || 1;
+let user_id = localStorage.getItem('user_id');
+console.log(user_id);
 let chat_id = null;
 
 
@@ -81,6 +82,7 @@ function aiGreet() {
 
 
 function startNewChatSession() {
+    if (typeof summarizeAndShowSession === 'function') summarizeAndShowSession();
     chat_id = generateChatId();
     // 确保chat_id为字符串
     chat_id = String(chat_id);
