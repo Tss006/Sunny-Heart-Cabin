@@ -14,6 +14,7 @@
 	const resultAdvice = document.getElementById('testResultAdvice');
 	const resultScore = document.getElementById('testResultScore');
 	const aiAnalyzeBtn = document.getElementById('testAiAnalyzeBtn');
+	const musicRecommendBtn = document.getElementById('testMusicRecommendBtn');
 	const restartBtn = document.getElementById('testRestartBtn');
 	const infoBtn = document.getElementById('testInfoBtn');
 	const guideModal = document.getElementById('testGuideModal');
@@ -25,6 +26,7 @@
 	let questions = [];
 	let answers = [];
 	let currentIndex = 0;
+	let lastResultScore = null;
 	let userId = resolveUserId();
 	let initialized = false;
 
@@ -227,6 +229,8 @@
 		setVisible(false);
 		if (resultCard) resultCard.style.display = 'flex';
 		if (aiAnalyzeBtn) aiAnalyzeBtn.disabled = false;
+		if (musicRecommendBtn) musicRecommendBtn.disabled = false;
+		lastResultScore = Number(data.score != null ? data.score : 0);
 		if (resultScore) resultScore.textContent = data.score != null ? data.score : '0';
 		if (resultLevel) resultLevel.textContent = data.level || '测评完成';
 		if (resultAdvice) resultAdvice.textContent = data.advice || '已完成测评';
@@ -239,8 +243,10 @@
 	function restartTest() {
 		answers = new Array(questions.length).fill(null);
 		currentIndex = 0;
+		lastResultScore = null;
 		if (testContent) testContent.classList.remove('test-result-mode');
 		if (resultCard) resultCard.style.display = 'none';
+		if (musicRecommendBtn) musicRecommendBtn.disabled = true;
 		setVisible(true);
 		renderCurrentQuestion();
 	}
@@ -289,6 +295,23 @@
 		}
 	}
 
+	function openMusicRecommendation() {
+		if (lastResultScore == null) {
+			alert('暂无可用的测评结果');
+			return;
+		}
+		const musicLink = Array.from(document.querySelectorAll('.sidebar-menu a')).find(link => link.textContent.trim() === '治愈音乐');
+		if (!musicLink || typeof showPage !== 'function') {
+			alert('无法打开治愈音乐页面');
+			return;
+		}
+		localStorage.setItem('music_recommend_score', String(lastResultScore));
+		showPage('music', musicLink);
+		if (typeof window.playMusicRecommendation === 'function') {
+			window.playMusicRecommendation(lastResultScore);
+		}
+	}
+
 	function openGuideModal() {
 		if (guideModal) guideModal.style.display = 'flex';
 	}
@@ -315,6 +338,8 @@
 		if (prevBtn) prevBtn.onclick = goPrev;
 		if (nextBtn) nextBtn.onclick = goNext;
 		if (aiAnalyzeBtn) aiAnalyzeBtn.onclick = openAiAnalysisChat;
+		if (musicRecommendBtn) musicRecommendBtn.onclick = openMusicRecommendation;
+		if (musicRecommendBtn) musicRecommendBtn.disabled = true;
 		if (restartBtn) restartBtn.onclick = restartTest;
 		bindGuideModal();
 		loadQuestions();

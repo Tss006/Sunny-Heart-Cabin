@@ -13,6 +13,9 @@ public interface DiaryMapper {
     @Select("SELECT id, user_id, title, content, mood, create_time, diary_id FROM diary WHERE user_id=#{user_id} ORDER BY create_time DESC")
     List<Diary> listByUserId(@Param("user_id") Long user_id);
 
+    @Select("SELECT COUNT(*) FROM diary WHERE user_id=#{user_id}")
+    Long countByUserId(@Param("user_id") Long user_id);
+
     @Select("SELECT id, user_id, title, content, mood, create_time, diary_id FROM diary WHERE diary_id=#{diary_id}")
     Diary getByDiaryId(@Param("diary_id") String diary_id);
 

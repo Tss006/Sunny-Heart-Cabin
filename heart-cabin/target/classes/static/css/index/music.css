@@ -172,18 +172,38 @@
 }
 
 .music-progress-track {
+	position: relative;
 	height: 10px;
 	border-radius: 999px;
 	background: rgba(74, 144, 226, 0.10);
-	overflow: hidden;
+	overflow: visible;
+	cursor: pointer;
+	touch-action: none;
 }
 
 .music-progress-bar {
+	position: absolute;
+	left: 0;
+	top: 0;
 	height: 100%;
 	width: 0;
 	border-radius: inherit;
 	background: linear-gradient(90deg, var(--primary), #7dd3fc);
 	transition: width 0.25s ease;
+}
+
+.music-progress-thumb {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	border: 3px solid var(--primary);
+	box-shadow: 0 6px 14px rgba(74, 144, 226, 0.24);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
 }
 
 .music-progress-text {
@@ -204,7 +224,7 @@
 
 .music-controls {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 12px;
 }
 
@@ -216,6 +236,10 @@
 	font-size: 15px;
 	font-weight: 700;
 	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
 	transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background 0.2s ease;
 }
 
@@ -239,41 +263,11 @@
 	color: var(--primary-dark);
 }
 
-.music-modes {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-.music-mode-switch {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 10px;
-}
-
-.music-mode-btn {
-	height: 44px;
-	padding: 0 12px;
-	border: 1px solid rgba(74, 144, 226, 0.16);
-	border-radius: 14px;
-	background: rgba(255, 255, 255, 0.92);
-	color: var(--text-secondary);
-	font-size: 14px;
-	font-weight: 700;
-	cursor: pointer;
-	transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.music-mode-btn:hover {
-	transform: translateY(-1px);
-	border-color: rgba(74, 144, 226, 0.32);
-	box-shadow: 0 10px 18px rgba(74, 144, 226, 0.08);
-}
-
-.music-mode-btn.active {
-	background: linear-gradient(135deg, rgba(74, 144, 226, 0.12), rgba(125, 211, 252, 0.14));
-	border-color: rgba(74, 144, 226, 0.40);
-	color: var(--primary-dark);
+.music-btn-icon {
+	width: 20px;
+	height: 20px;
+	flex: 0 0 20px;
+	object-fit: contain;
 }
 
 .music-search-card,
@@ -497,6 +491,10 @@
 		justify-content: flex-start;
 	}
 
+	.music-controls {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
 	.music-list {
 		grid-template-columns: 1fr;
 	}
@@ -516,16 +514,18 @@
 	}
 
 	.music-controls,
-	.music-mode-switch,
 	.music-search-row {
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.music-control-btn,
-	.music-mode-btn,
 	.music-search-row input,
 	.music-search-row button {
 		width: 100%;
+	}
+
+	.music-control-btn {
+		justify-content: center;
 	}
 
 	.music-search-header,

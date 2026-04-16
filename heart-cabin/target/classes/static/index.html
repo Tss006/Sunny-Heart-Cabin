@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/index/user.css">
   <link rel="stylesheet" href="css/index/mood.css">
   <link rel="stylesheet" href="css/index/chat.css">
+  <link rel="stylesheet" href="css/index/counselor.css">
   <link rel="stylesheet" href="css/index/test.css">
   <link rel="stylesheet" href="css/index/music.css">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -21,12 +22,13 @@
 <div class="sidebar">
   <div class="logo">心晴小屋</div>
   <ul class="sidebar-menu">
-    <li><a href="#" onclick="showPage('home', this)" class="active">首页</a></li>
-    <li><a href="#" onclick="showPage('user', this)">个人中心</a></li>
-    <li><a href="#" onclick="showPage('chat', this)">AI 聊天</a></li>
-    <li><a href="#" onclick="showPage('mood', this)">心情日记</a></li>
-    <li><a href="#" onclick="showPage('test', this)">心理测试</a></li>
-    <li><a href="#" onclick="showPage('music', this)">治愈音乐</a></li>
+    <li><a href="#" data-page="home" onclick="showPage('home', this)" class="active">首页</a></li>
+    <li><a href="#" data-page="user" onclick="showPage('user', this)">个人中心</a></li>
+    <li><a href="#" data-page="chat" onclick="showPage('chat', this)">AI 聊天</a></li>
+    <li><a href="#" data-page="counselor" onclick="showPage('counselor', this)">真人咨询</a></li>
+    <li><a href="#" data-page="mood" onclick="showPage('mood', this)">心情日记</a></li>
+    <li><a href="#" data-page="test" onclick="showPage('test', this)">心理测试</a></li>
+    <li><a href="#" data-page="music" onclick="showPage('music', this)">治愈音乐</a></li>
   </ul>
   <button id="logout" class="logout-btn">退出登录</button>
 </div>
@@ -34,8 +36,67 @@
 <!-- 右侧：只显示文字 → 你要的干净效果 -->
 <div class="content">
   <div id="home-content">
-    <h1>欢迎来到心晴小屋</h1>
-    <p style="margin-top:10px; font-size:18px;">请从左侧菜单选择功能</p>
+    <section class="home-hero">
+      <div class="home-banner-logo">心晴小屋</div>
+    </section>
+
+    <section class="home-section home-quote-section">
+      <div class="home-section-header compact">
+        <div>
+          <h2>今日名言</h2>
+          <p>从数据库随机抽取</p>
+        </div>
+      </div>
+      <div class="home-quote-card home-quote-below">
+        <blockquote id="homeQuoteText">正在从数据库加载今日名言...</blockquote>
+        <cite id="homeQuoteAuthor">-</cite>
+      </div>
+    </section>
+
+    <section class="home-section home-suggestion-section">
+      <div class="home-section-header compact">
+        <div>
+          <h2>今日建议</h2>
+          <p>先把最小的一件事做好</p>
+        </div>
+      </div>
+      <div class="home-tip-card">
+        <div class="home-tip-list">
+          <div class="home-tip-item">先完成一件最小的事，再处理下一件。</div>
+          <div class="home-tip-item">如果情绪很重，先去真人咨询或 AI 聊天。</div>
+          <div class="home-tip-item">把感受写进日记，通常会更容易看清问题。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section home-message-section">
+      <div class="home-section-header">
+        <div>
+          <h2>给其他用户留一句话</h2>
+          <p>留言会随机展示在下方的气泡框中</p>
+        </div>
+      </div>
+
+      <form id="homeMessageForm" class="home-message-form">
+        <textarea id="homeMessageInput" rows="3" placeholder="写下一句想对其他用户说的话..."></textarea>
+        <div class="home-message-form-row">
+          <label class="home-message-option">
+            <input type="checkbox" id="homeMessageAnonymous" checked>
+            匿名留言
+          </label>
+          <button type="submit" class="home-message-submit">发布留言</button>
+        </div>
+        <div class="home-message-status" id="homeMessageStatus"></div>
+      </form>
+
+      <div class="home-message-wall">
+        <div class="home-message-wall-header">
+          <h3>其他用户的留言</h3>
+          <button type="button" class="home-message-refresh" id="homeMessageRefresh">换一批</button>
+        </div>
+        <div id="homeMessageList" class="home-message-list"></div>
+      </div>
+    </section>
   </div>
   <div id="user-content" style="display:none;">
     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
@@ -97,21 +158,21 @@
           <div class="stat-card">
             <div class="stat-icon">📝</div>
             <div class="stat-content">
-              <h3></h3>
+              <h3 id="diaryCount">0</h3>
               <p>日记条数</p>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🧠</div>
             <div class="stat-content">
-              <h3></h3>
+              <h3 id="testCount">0</h3>
               <p>测试次数</p>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🎵</div>
             <div class="stat-content">
-              <h3></h3>
+              <h3 id="musicCount">0</h3>
               <p>音乐播放</p>
             </div>
           </div>
@@ -122,16 +183,78 @@
       <div class="features-section">
         <h2>🚀 功能中心</h2>
         <div class="features-grid">
-          <div class="feature-item">
+          <div class="feature-item" id="myReportBtn" role="button" tabindex="0">
             <div class="feature-icon">📊</div>
             <h4>我的报告</h4>
             <p>查看历史测评结果</p>
           </div>
-          <div class="feature-item">
+          <div class="feature-item" id="settingBtn" role="button" tabindex="0">
             <div class="feature-icon">⚙️</div>
             <h4>设置</h4>
             <p>账号与隐私设置</p>
           </div>
+        </div>
+      </div>
+
+      <div class="report-modal" id="testReportModal" style="display:none;">
+        <div class="report-modal-backdrop" id="testReportBackdrop"></div>
+        <div class="report-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="testReportTitle">
+          <button type="button" class="report-modal-close" id="testReportClose">×</button>
+          <div class="report-modal-header">
+            <h3 id="testReportTitle">我的报告</h3>
+            <p>按时间倒序展示最近的测评记录</p>
+          </div>
+          <div class="report-modal-empty" id="testReportEmpty" style="display:none;">暂无历史测评记录</div>
+          <div class="report-list" id="testReportList"></div>
+        </div>
+      </div>
+
+      <div class="settings-modal" id="settingsModal" style="display:none;">
+        <div class="settings-modal-backdrop" id="settingsBackdrop"></div>
+        <div class="settings-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+          <button type="button" class="settings-modal-close" id="settingsClose">×</button>
+          <div class="settings-modal-header">
+            <div>
+              <h3 id="settingsTitle">设置</h3>
+              <p>修改密码、绑定手机号、切换主题和导出个人数据</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <section class="settings-section">
+              <h4>修改密码</h4>
+              <div class="settings-field-list">
+                <input id="settingsOldPasswordInput" class="settings-input" type="password" placeholder="当前密码" autocomplete="current-password" />
+                <input id="settingsNewPasswordInput" class="settings-input" type="password" placeholder="新密码（不少于 6 位）" autocomplete="new-password" />
+                <input id="settingsConfirmPasswordInput" class="settings-input" type="password" placeholder="再次输入新密码" autocomplete="new-password" />
+              </div>
+              <button type="button" class="settings-action-btn" id="settingsSavePasswordBtn">保存密码</button>
+            </section>
+
+            <section class="settings-section">
+              <h4>绑定手机号</h4>
+              <div class="settings-field-list">
+                <input id="settingsPhoneInput" class="settings-input" type="tel" placeholder="请输入手机号" autocomplete="tel" />
+              </div>
+              <button type="button" class="settings-action-btn" id="settingsSavePhoneBtn">保存手机号</button>
+            </section>
+
+            <section class="settings-section">
+              <h4>浅色 / 深色主题</h4>
+              <div class="settings-theme-switch" role="group" aria-label="主题切换">
+                <button type="button" class="settings-theme-btn active" id="settingsThemeLightBtn">浅色</button>
+                <button type="button" class="settings-theme-btn" id="settingsThemeDarkBtn">深色</button>
+              </div>
+            </section>
+
+            <section class="settings-section settings-section-export">
+              <h4>数据导出</h4>
+              <p>导出个人资料、日记记录和测试历史为 JSON 文件。</p>
+              <button type="button" class="settings-action-btn secondary" id="settingsExportBtn">导出数据</button>
+            </section>
+          </div>
+
+          <div class="settings-status" id="settingsStatus" aria-live="polite"></div>
         </div>
       </div>
       
@@ -163,6 +286,90 @@
           <textarea id="chatInput" placeholder="请输入你的问题..." rows="1"></textarea>
           <button id="sendChatBtn">发送</button>
         </div>
+      </div>
+    </div>
+  </div>
+  <div id="counselor-content" style="display:none;">
+    <div class="counselor-page">
+      <section class="counselor-hero">
+        <div class="counselor-hero-copy">
+          <div class="counselor-kicker">真人咨询</div>
+          <h1>选择一位咨询师，开始一对一倾诉</h1>
+          <p>咨询师列表会直接从数据库读取，点击左侧卡片即可查看资料并在右侧发起咨询。</p>
+          <div class="counselor-meta">
+            <span id="counselorTotalCount">0 位咨询师</span>
+            <span id="counselorOnlineCount">0 位在线</span>
+            <span>支持即时切换咨询师</span>
+          </div>
+        </div>
+        <div class="counselor-hero-orbit" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </section>
+
+      <div class="counselor-layout">
+        <aside class="counselor-panel counselor-list-panel">
+          <div class="counselor-panel-header">
+            <div>
+              <h2>咨询师列表</h2>
+              <p>从数据库动态加载</p>
+            </div>
+            <span class="counselor-list-badge" id="counselorListBadge">等待加载</span>
+          </div>
+          <div class="counselor-list" id="counselorList"></div>
+        </aside>
+
+        <section class="counselor-panel counselor-detail-panel">
+          <div class="counselor-detail-empty" id="counselorEmptyState">请选择一位咨询师查看资料并开始咨询</div>
+
+          <div class="counselor-detail-card" id="counselorDetailCard" style="display:none;">
+            <div class="counselor-detail-top">
+              <img id="counselorAvatar" class="counselor-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="咨询师头像">
+              <div class="counselor-detail-copy">
+                <div class="counselor-detail-kicker" id="counselorStatusText">待选择</div>
+                <h3 id="counselorName">-</h3>
+                <p id="counselorTitle">-</p>
+              </div>
+            </div>
+
+            <p class="counselor-signature" id="counselorSignature"></p>
+
+            <div class="counselor-detail-grid">
+              <div class="counselor-detail-item">
+                <span>用户名</span>
+                <strong id="counselorUsername">-</strong>
+              </div>
+              <div class="counselor-detail-item">
+                <span>年龄 / 性别</span>
+                <strong id="counselorAgeGender">-</strong>
+              </div>
+              <div class="counselor-detail-item">
+                <span>手机号</span>
+                <strong id="counselorPhone">-</strong>
+              </div>
+              <div class="counselor-detail-item">
+                <span>注册时间</span>
+                <strong id="counselorCreateTime">-</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="counselor-chat-card">
+            <div class="counselor-chat-header">
+              <div>
+                <h3 id="counselorChatTitle">咨询记录</h3>
+                <p id="counselorChatSubtitle">先选择左侧咨询师</p>
+              </div>
+            </div>
+            <div class="counselor-chat-history" id="counselorChatHistory"></div>
+            <div class="counselor-chat-input-bar">
+              <textarea id="counselorChatInput" placeholder="说说你的困扰..." rows="2"></textarea>
+              <button id="counselorSendBtn" type="button">发送咨询</button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -245,6 +452,7 @@
         </div>
         <div class="test-result-actions">
           <button type="button" class="test-nav-btn primary" id="testAiAnalyzeBtn">AI 分析</button>
+          <button type="button" class="test-nav-btn primary" id="testMusicRecommendBtn" disabled>音乐推荐</button>
           <button type="button" class="test-nav-btn primary" id="testRestartBtn">重新测试</button>
         </div>
       </section>
@@ -292,8 +500,9 @@
             <div class="music-current-status-row">
               <span class="music-status" id="musicCurrentStatus">等待播放</span>
               <div class="music-progress">
-                <div class="music-progress-track" aria-hidden="true">
+                <div class="music-progress-track" id="musicProgressTrack" role="slider" aria-label="播放进度条" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                   <div class="music-progress-bar" id="musicProgressBar"></div>
+                  <span class="music-progress-thumb" id="musicProgressThumb"></span>
                 </div>
                 <div class="music-progress-text">
                   <span id="musicCurrentTime">00:00</span>
@@ -306,18 +515,22 @@
 
         <div class="music-player-actions">
           <div class="music-controls">
-            <button type="button" class="music-control-btn secondary" id="musicPrevBtn">上一首</button>
-            <button type="button" class="music-control-btn primary" id="musicPlayBtn">播放</button>
-            <button type="button" class="music-control-btn secondary" id="musicPauseBtn">暂停</button>
-            <button type="button" class="music-control-btn secondary" id="musicNextBtn">下一首</button>
-          </div>
-          <div class="music-modes">
-            <span class="music-mode-label">播放模式</span>
-            <div class="music-mode-switch" role="group" aria-label="播放模式">
-              <button type="button" class="music-mode-btn active" data-music-mode="list" aria-pressed="true">列表循环</button>
-              <button type="button" class="music-mode-btn" data-music-mode="single" aria-pressed="false">单曲循环</button>
-              <button type="button" class="music-mode-btn" data-music-mode="random" aria-pressed="false">随机播放</button>
-            </div>
+            <button type="button" class="music-control-btn secondary" id="musicPrevBtn" title="上一首" aria-label="上一首">
+              <img class="music-btn-icon" src="icons/music-prev.svg" alt="" aria-hidden="true">
+              <span class="music-btn-text">上一首</span>
+            </button>
+            <button type="button" class="music-control-btn primary" id="musicPlayToggleBtn" title="播放" aria-label="播放">
+              <img class="music-btn-icon" id="musicPlayToggleIcon" src="icons/music-fast-forward.svg" alt="" aria-hidden="true">
+              <span class="music-btn-text" id="musicPlayToggleText">播放</span>
+            </button>
+            <button type="button" class="music-control-btn secondary" id="musicNextBtn" title="下一首" aria-label="下一首">
+              <img class="music-btn-icon" src="icons/music-next.svg" alt="" aria-hidden="true">
+              <span class="music-btn-text">下一首</span>
+            </button>
+            <button type="button" class="music-control-btn secondary" id="musicModeBtn" title="列表循环" aria-label="切换播放模式">
+              <img class="music-btn-icon" id="musicModeIcon" src="icons/music-loop-list.svg" alt="" aria-hidden="true">
+              <span class="music-btn-text" id="musicModeText">列表循环</span>
+            </button>
           </div>
         </div>
 
@@ -351,6 +564,7 @@
 </div>
   <script src="js/index/index.js"></script>
   <script src="js/index/user.js"></script>
+  <script src="js/index/counselor.js"></script>
   <script src="js/index/mood.js"></script>
   <script src="js/index/chat.js"></script>
   <script src="js/index/test.js"></script>

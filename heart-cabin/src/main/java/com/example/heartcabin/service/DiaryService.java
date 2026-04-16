@@ -20,6 +20,10 @@ public class DiaryService {
         return diaryMapper.listByUserId(user_id);
     }
 
+    public Long countByUserId(Long user_id) {
+        return diaryMapper.countByUserId(user_id);
+    }
+
     public Diary getByDiaryId(String diary_id) {
         return diaryMapper.getByDiaryId(diary_id);
     }

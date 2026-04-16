@@ -2,7 +2,9 @@ package com.example.heartcabin.controller;
 
 import com.example.heartcabin.common.Result;
 import com.example.heartcabin.entity.Diary;
+import com.example.heartcabin.entity.User;
 import com.example.heartcabin.service.DiaryService;
+import com.example.heartcabin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,9 @@ public class DiaryController {
 
     @Autowired
     private DiaryService diaryService;
+
+    @Autowired
+    private UserService userService;
 
     // 发布日记
     @PostMapping("/add")
@@ -35,6 +40,12 @@ public class DiaryController {
         diary.setDiary_id(UUID.randomUUID().toString()); // 生成唯一 diary_id
         boolean ok = diaryService.addDiary(diary);
         if (ok) {
+            User user = userService.getById(diary.getUser_id());
+            if (user != null) {
+                long currentCount = user.getDiary_num() == null ? 0L : user.getDiary_num();
+                user.setDiary_num(currentCount + 1);
+                userService.updateById(user);
+            }
             return Result.success("发布成功", null);
         } else {
             return Result.fail("发布失败");

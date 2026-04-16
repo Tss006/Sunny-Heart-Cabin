@@ -13,10 +13,13 @@ public class User {
     private String phone;
     private String role;        // 角色 user/admin
     private Integer status;    // 0禁用 1正常
-    private LocalDateTime create_Time;
+    private LocalDateTime create_time;
     private int age;
     private String gender;
     private String signature;
+    private Long test_num;
+    private Long diary_num;
+    private Long music_num;
 
     public User(String username,String password) {
         this.username = username;
@@ -31,7 +34,7 @@ public class User {
         this.phone=null;
         this.role=null;
         this.status=null;
-        this.create_Time = LocalDateTime.now();
+        this.create_time = LocalDateTime.now();
     }
 
     public User() {

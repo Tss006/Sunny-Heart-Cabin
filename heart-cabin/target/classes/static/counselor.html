@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心晴小屋 - 咨询师端</title>
+  <link rel="stylesheet" href="css/counselor/home.css">
+  <link rel="stylesheet" href="css/counselor/counselor.css">
+  <link rel="stylesheet" href="css/counselor/chatForCounselor.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="counselor-app">
+  <div class="sidebar">
+    <div class="logo">心晴咨询师端</div>
+    <ul class="sidebar-menu">
+      <li><a href="#" onclick="showPage('home', this)" class="active">首页</a></li>
+      <li><a href="#" onclick="showPage('profile', this)">个人中心</a></li>
+      <li><a href="#" onclick="showPage('consult', this)">用户咨询</a></li>
+    </ul>
+    <button id="logout" class="logout-btn">退出登录</button>
+  </div>
+
+  <div class="content counselor-content">
+    <section id="home-content" class="counselor-page">
+      <div class="counselor-hero hero-home">
+        <div>
+          <div class="counselor-kicker">咨询师工作台</div>
+          <h1 id="homeTitle">欢迎来到咨询师工作台</h1>
+          <p id="homeSubtitle">在这里查看个人信息并处理用户咨询。</p>
+        </div>
+        <img id="homeAvatar" class="hero-avatar" src="images/avatar-default.png" alt="咨询师头像">
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span>今日待处理</span>
+          <strong id="pendingCount">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>进行中会话</span>
+          <strong id="activeCount">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>累计咨询</span>
+          <strong id="totalCount">0</strong>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-panel">
+          <h3>工作建议</h3>
+          <p>优先处理高优先级用户，再回看历史对话，保持统一语气。</p>
+        </div>
+        <div class="feature-panel">
+          <h3>快速入口</h3>
+          <p>切换到个人中心更新资料，或进入用户咨询页继续处理消息。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="profile-content" class="counselor-page" style="display:none;">
+      <div class="panel-card profile-card">
+        <div class="profile-header-row">
+          <img id="profileAvatar" class="profile-avatar" src="images/avatar-default.png" alt="咨询师头像">
+          <div>
+            <div class="counselor-kicker">个人中心</div>
+            <h2 id="profileName">-</h2>
+            <p id="profileTitle">-</p>
+          </div>
+        </div>
+        <div class="profile-grid">
+          <div><span>真实姓名</span><strong id="profileRealName">-</strong></div>
+          <div><span>账号</span><strong id="profileUsername">-</strong></div>
+          <div><span>昵称</span><strong id="profileNickname">-</strong></div>
+          <div><span>手机号</span><strong id="profilePhone">-</strong></div>
+          <div><span>年龄</span><strong id="profileAge">-</strong></div>
+          <div><span>性别</span><strong id="profileGender">-</strong></div>
+          <div><span>状态</span><strong id="profileStatus">-</strong></div>
+          <div><span>注册时间</span><strong id="profileCreateTime">-</strong></div>
+        </div>
+        <div class="signature-box" id="profileSignature">-</div>
+      </div>
+    </section>
+
+    <section id="consult-content" class="counselor-page" style="display:none;">
+      <div class="consult-layout">
+        <aside class="consult-list-card panel-card">
+          <div class="panel-title-row">
+            <h2>用户咨询</h2>
+            <span class="badge">在线</span>
+          </div>
+          <ul class="consult-session-list" id="consultSessionList"></ul>
+        </aside>
+        <section class="consult-chat-card panel-card">
+          <div class="panel-title-row">
+            <div>
+              <h2 id="consultChatTitle">请选择一个会话</h2>
+              <p id="consultChatSubtitle">左侧选择咨询对象后即可开始回复。</p>
+            </div>
+          </div>
+          <div class="consult-history" id="consultHistory"></div>
+          <div class="consult-input-bar">
+            <textarea id="consultInput" rows="2" placeholder="输入回复内容..."></textarea>
+            <button type="button" id="consultSendBtn">发送</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/counselor/home.js"></script>
+  <script src="js/counselor/counselor.js"></script>
+  <script src="js/counselor/chatForCounselor.js"></script>
+</body>
+</html>

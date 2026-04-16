@@ -5,9 +5,8 @@ const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 const chatHistory = document.getElementById('chatHistory');
 
-let user = localStorage.getItem('user');
-user = user ? JSON.parse(user) : null;
-let user_id = user?.user?.id || 1;
+let user_id = localStorage.getItem('user_id');
+console.log(user_id);
 let chat_id = null;
 
 
@@ -47,18 +46,8 @@ function sendMessage() {
 function appendMessage(role, content) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message' + (role === 'user' ? ' user' : '');
-
-    // 动态加载用户头像
-    let avatar = '🤖'; // 默认 AI 头像
-    if (role === 'user') {
-        const user = localStorage.getItem('user');
-        const userObj = user ? JSON.parse(user) : null;
-        avatar = userObj?.avatar || 'images/avatar-default.png'; // 用户头像或默认头像
-        avatar = `<img src="${avatar}" class="avatar_img" alt="用户头像">`;
-    }
-
     msgDiv.innerHTML = `
-        <div class="avatar">${role === 'user' ? avatar : '🤖'}</div>
+        <div class="avatar">${role === 'user' ? '🧑' : '🤖'}</div>
         <div class="bubble">${escapeHtml(content)}</div>
     `;
     chatHistory.appendChild(msgDiv);

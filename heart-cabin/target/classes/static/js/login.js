@@ -43,11 +43,14 @@ form.addEventListener("submit", function (e) {
     const data = response.data;
     if (data.code===200) {
       // 登录成功
+      const account = data.data && data.data.user ? data.data.user : {};
+      const role = String(account.role || 'user').toLowerCase();
       localStorage.setItem("isLogin", "true");
       localStorage.setItem("token",data.data.token);
-      localStorage.setItem("user", JSON.stringify(data.data)); // 保存用户信息
-      localStorage.setItem("user_id", data.data.user && data.data.user.id ? String(data.data.user.id) : "");
-      location.href = "index.html";
+      localStorage.setItem("user", JSON.stringify(account)); // 保存用户信息
+      localStorage.setItem("user_id", account && account.id ? String(account.id) : "");
+      localStorage.setItem("user_role", role);
+      location.href = role === "counselor" ? "counselor.html" : "index.html";
     } else {
       // 登录失败
       showError(data.msg || "登录失败");

@@ -3,8 +3,10 @@ package com.example.heartcabin.controller;
 import com.example.heartcabin.common.Result;
 import com.example.heartcabin.entity.TestQuestion;
 import com.example.heartcabin.entity.TestHistory;
+import com.example.heartcabin.entity.User;
 import com.example.heartcabin.service.TestService;
 import com.example.heartcabin.service.TestHistoryService;
+import com.example.heartcabin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,9 @@ public class TestController {
 
     @Autowired
     private TestHistoryService testHistoryService;
+
+    @Autowired
+    private UserService userService;
 
     // 获取20道心理测试题（SAS焦虑自评量表标准题）
     @GetMapping("/questions")
@@ -48,6 +53,13 @@ public class TestController {
         history.setAdvice(advice);
         history.setCreate_time(java.time.LocalDateTime.now());
         testHistoryService.save(history);
+
+        User user = userService.getById(userId);
+        if (user != null) {
+            long currentCount = user.getTest_num() == null ? 0L : user.getTest_num();
+            user.setTest_num(currentCount + 1);
+            userService.updateById(user);
+        }
 
         // 4. 封装返回
         Map<String, Object> response = new HashMap<>();

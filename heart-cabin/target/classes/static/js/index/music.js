@@ -16,21 +16,42 @@
 	const musicCurrentMeta = document.getElementById('musicCurrentMeta');
 	const musicCurrentStatus = document.getElementById('musicCurrentStatus');
 	const musicProgressBar = document.getElementById('musicProgressBar');
+	const musicProgressThumb = document.getElementById('musicProgressThumb');
+	const musicProgressTrack = document.getElementById('musicProgressTrack');
 	const musicCurrentTime = document.getElementById('musicCurrentTime');
 	const musicDuration = document.getElementById('musicDuration');
 	const prevBtn = document.getElementById('musicPrevBtn');
-	const playBtn = document.getElementById('musicPlayBtn');
-	const pauseBtn = document.getElementById('musicPauseBtn');
+	const playToggleBtn = document.getElementById('musicPlayToggleBtn');
+	const playToggleIcon = document.getElementById('musicPlayToggleIcon');
+	const playToggleText = document.getElementById('musicPlayToggleText');
 	const nextBtn = document.getElementById('musicNextBtn');
-	const modeButtons = Array.from(document.querySelectorAll('[data-music-mode]'));
+	const modeBtn = document.getElementById('musicModeBtn');
+	const modeIcon = document.getElementById('musicModeIcon');
+	const modeText = document.getElementById('musicModeText');
 	const audio = document.getElementById('musicAudio');
+
+	const MODE_SEQUENCE = ['list', 'single', 'random'];
+	const MODE_META = {
+		list: { label: '列表循环', icon: 'icons/music-loop-list.svg' },
+		single: { label: '单曲循环', icon: 'icons/music-loop-single.svg' },
+		random: { label: '随机播放', icon: 'icons/music-random.svg' }
+	};
+	const PLAY_META = {
+		play: { label: '播放', icon: 'icons/music-fast-forward.svg' },
+		pause: { label: '暂停', icon: 'icons/music-pause.svg' }
+	};
+	const RECOMMENDATION_SCORE_KEY = 'music_recommend_score';
 
 	const state = {
 		songs: [],
 		filteredSongs: [],
 		currentSongId: '',
 		mode: 'list',
-		isLoaded: false
+		isLoaded: false,
+		isSeeking: false,
+		activePointerId: null,
+		pendingRecommendationScore: null,
+		recommendationPlayed: false
 	};
 
 	function normalizeText(value) {
@@ -45,13 +66,24 @@
 		return `${String(minutes).padStart(2, '0')}:${String(remainSeconds).padStart(2, '0')}`;
 	}
 
+	function getMusicTypeByScore(score) {
+		if (score <= 25) return 'relax';
+		if (score <= 40) return 'light';
+		if (score <= 55) return 'relieve';
+		return 'calm';
+	}
+
 	function normalizeSong(song, index) {
+		const title = normalizeText(song.title || song.name || song.songName || song.music_name);
+		const author = normalizeText(song.author || song.artist || song.singer || song.creator);
+		const type = normalizeText(song.type);
+		const url = normalizeText(song.url || song.musicUrl || song.music_url || song.path || song.filePath);
 		return {
 			id: String(song.id != null ? song.id : `music-${index}`),
-			title: normalizeText(song.title) || '未命名歌曲',
-			author: normalizeText(song.author) || '未知作者',
-			type: normalizeText(song.type) || '未知类型',
-			url: normalizeText(song.url)
+			title: title || '未命名歌曲',
+			author: author || '未知作者',
+			type: type || '未知类型',
+			url: url
 		};
 	}
 
@@ -80,6 +112,7 @@
 
 	function updatePlayerHeader() {
 		const currentSong = getCurrentSong();
+		const isPlaying = !!(currentSong && audio && !audio.paused);
 		if (currentSong) {
 			if (musicCurrentTitle) musicCurrentTitle.textContent = currentSong.title;
 			if (musicCurrentMeta) musicCurrentMeta.textContent = `${currentSong.author} · ${currentSong.type}`;
@@ -98,31 +131,111 @@
 			}
 		}
 
-		if (playBtn) playBtn.disabled = state.filteredSongs.length === 0;
-		if (pauseBtn) pauseBtn.disabled = !currentSong || !!audio.paused;
 		if (prevBtn) prevBtn.disabled = state.filteredSongs.length === 0;
 		if (nextBtn) nextBtn.disabled = state.filteredSongs.length === 0;
+		if (playToggleBtn) playToggleBtn.disabled = state.filteredSongs.length === 0;
+		if (playToggleIcon) playToggleIcon.src = isPlaying ? PLAY_META.pause.icon : PLAY_META.play.icon;
+		if (playToggleText) playToggleText.textContent = isPlaying ? PLAY_META.pause.label : PLAY_META.play.label;
+		if (playToggleBtn) playToggleBtn.title = isPlaying ? PLAY_META.pause.label : PLAY_META.play.label;
+		if (musicProgressTrack) musicProgressTrack.setAttribute('aria-valuenow', String(Math.round(getProgressPercent())));
 	}
 
 	function updateProgress() {
 		if (!audio) return;
 		if (musicCurrentTime) musicCurrentTime.textContent = formatTime(audio.currentTime);
 		if (musicDuration) musicDuration.textContent = formatTime(audio.duration);
-		if (musicProgressBar) {
-			const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0;
-			const percent = duration > 0 ? (audio.currentTime / duration) * 100 : 0;
-			musicProgressBar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
-		}
+		const percent = getProgressPercent();
+		if (musicProgressBar) musicProgressBar.style.width = `${percent}%`;
+		if (musicProgressThumb) musicProgressThumb.style.left = `${percent}%`;
+		if (musicProgressTrack) musicProgressTrack.setAttribute('aria-valuenow', String(Math.round(percent)));
 	}
 
 	function updateModeButtons() {
-		modeButtons.forEach(button => {
-			const active = button.getAttribute('data-music-mode') === state.mode;
-			button.classList.toggle('active', active);
-			button.setAttribute('aria-pressed', String(active));
-		});
+		const meta = MODE_META[state.mode] || MODE_META.list;
+		if (modeIcon) modeIcon.src = meta.icon;
+		if (modeText) modeText.textContent = meta.label;
+		if (modeBtn) {
+			modeBtn.title = meta.label;
+			modeBtn.setAttribute('aria-label', `切换播放模式，当前：${meta.label}`);
+		}
 		if (audio) {
 			audio.loop = state.mode === 'single';
+		}
+	}
+
+	function getRecommendationScore() {
+		if (state.pendingRecommendationScore != null && !Number.isNaN(Number(state.pendingRecommendationScore))) {
+			return Number(state.pendingRecommendationScore);
+		}
+		const storedScore = localStorage.getItem(RECOMMENDATION_SCORE_KEY);
+		if (storedScore == null || storedScore === '') return null;
+		const parsedScore = Number(storedScore);
+		if (Number.isNaN(parsedScore)) return null;
+		state.pendingRecommendationScore = parsedScore;
+		return parsedScore;
+	}
+
+	function consumeRecommendationScore() {
+		localStorage.removeItem(RECOMMENDATION_SCORE_KEY);
+		state.pendingRecommendationScore = null;
+		state.recommendationPlayed = true;
+	}
+
+	function playRecommendedSongIfNeeded() {
+		if (state.recommendationPlayed) return;
+		const score = getRecommendationScore();
+		if (score == null || !state.songs.length) return;
+		const recommendedType = getMusicTypeByScore(score);
+		let candidates = state.songs.filter(song => normalizeText(song.type).toLowerCase() === recommendedType);
+		if (!candidates.length) {
+			candidates = state.songs.slice();
+		}
+		if (!candidates.length) return;
+		const pickedSong = candidates[Math.floor(Math.random() * candidates.length)];
+		consumeRecommendationScore();
+		playSongById(pickedSong.id);
+	}
+
+	function getProgressPercent() {
+		if (!audio || !Number.isFinite(audio.duration) || audio.duration <= 0) return 0;
+		return Math.min(100, Math.max(0, (audio.currentTime / audio.duration) * 100));
+	}
+
+	function seekByClientX(clientX) {
+		if (!audio || !musicProgressTrack || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+		const rect = musicProgressTrack.getBoundingClientRect();
+		if (!rect.width) return;
+		const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+		audio.currentTime = ratio * audio.duration;
+		updateProgress();
+	}
+
+	function startSeeking(event) {
+		if (!audio || !musicProgressTrack || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+		state.isSeeking = true;
+		state.activePointerId = event.pointerId;
+		musicProgressTrack.setPointerCapture(event.pointerId);
+		seekByClientX(event.clientX);
+	}
+
+	function moveSeeking(event) {
+		if (!state.isSeeking) return;
+		seekByClientX(event.clientX);
+	}
+
+	function endSeeking(event) {
+		if (!state.isSeeking) return;
+		state.isSeeking = false;
+		if (musicProgressTrack && state.activePointerId != null) {
+			try {
+				musicProgressTrack.releasePointerCapture(state.activePointerId);
+			} catch (error) {
+				// ignore pointer capture errors
+			}
+		}
+		state.activePointerId = null;
+		if (event && typeof event.clientX === 'number') {
+			seekByClientX(event.clientX);
 		}
 	}
 
@@ -205,33 +318,44 @@
 		updatePlayerHeader();
 		renderMusicList();
 
-		audio.play().catch(function(error) {
+		Promise.resolve(audio.play()).then(function() {
+			if (typeof window.incrementUserStat === 'function') {
+				window.incrementUserStat('music_num');
+			}
+		}).catch(function(error) {
 			console.error('播放失败:', error);
 			alert('当前歌曲播放失败，请检查歌曲地址');
 		});
 	}
 
-	function playSelectedOrFirst() {
+	function togglePlayback() {
 		if (!state.filteredSongs.length) return;
 		const currentSong = getCurrentSong();
 		if (!currentSong) {
 			playSongById(state.filteredSongs[0].id);
 			return;
 		}
-		if (!audio || audio.dataset.songId !== currentSong.id) {
-			playSongById(currentSong.id);
+		if (!audio) return;
+		if (audio.paused) {
+			if (!audio.src || audio.dataset.songId !== currentSong.id) {
+				playSongById(currentSong.id);
+				return;
+			}
+			audio.play().catch(function(error) {
+				console.error('恢复播放失败:', error);
+				alert('当前歌曲播放失败，请检查歌曲地址');
+			});
 			return;
 		}
-		audio.play().catch(function(error) {
-			console.error('恢复播放失败:', error);
-			alert('当前歌曲播放失败，请检查歌曲地址');
-		});
-	}
-
-	function pauseCurrentSong() {
-		if (!audio || audio.paused) return;
 		audio.pause();
 		updatePlayerHeader();
+	}
+
+	function cyclePlayMode() {
+		const currentIndex = MODE_SEQUENCE.indexOf(state.mode);
+		const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % MODE_SEQUENCE.length;
+		state.mode = MODE_SEQUENCE[nextIndex];
+		updateModeButtons();
 	}
 
 	function getRandomIndex() {
@@ -292,6 +416,7 @@
 				renderMusicList();
 				updateModeButtons();
 				updatePlayerHeader();
+				playRecommendedSongIfNeeded();
 			} else {
 				state.songs = [];
 				state.filteredSongs = [];
@@ -309,6 +434,17 @@
 		});
 	}
 
+	window.playMusicRecommendation = function(score) {
+		const parsedScore = Number(score);
+		if (Number.isNaN(parsedScore)) return;
+		state.pendingRecommendationScore = parsedScore;
+		state.recommendationPlayed = false;
+		localStorage.setItem(RECOMMENDATION_SCORE_KEY, String(parsedScore));
+		if (state.isLoaded) {
+			playRecommendedSongIfNeeded();
+		}
+	};
+
 	function initMusicPage() {
 		if (!musicPage || musicPage.dataset.initialized === 'true') return;
 		musicPage.dataset.initialized = 'true';
@@ -325,12 +461,8 @@
 			});
 		}
 
-		if (playBtn) {
-			playBtn.addEventListener('click', playSelectedOrFirst);
-		}
-
-		if (pauseBtn) {
-			pauseBtn.addEventListener('click', pauseCurrentSong);
+		if (playToggleBtn) {
+			playToggleBtn.addEventListener('click', togglePlayback);
 		}
 
 		if (prevBtn) {
@@ -341,12 +473,17 @@
 			nextBtn.addEventListener('click', playNextSong);
 		}
 
-		modeButtons.forEach(function(button) {
-			button.addEventListener('click', function() {
-				state.mode = button.getAttribute('data-music-mode') || 'list';
-				updateModeButtons();
-			});
-		});
+		if (modeBtn) {
+			modeBtn.addEventListener('click', cyclePlayMode);
+		}
+
+		if (musicProgressTrack) {
+			musicProgressTrack.addEventListener('pointerdown', startSeeking);
+			musicProgressTrack.addEventListener('pointermove', moveSeeking);
+			musicProgressTrack.addEventListener('pointerup', endSeeking);
+			musicProgressTrack.addEventListener('pointercancel', endSeeking);
+			musicProgressTrack.addEventListener('lostpointercapture', endSeeking);
+		}
 
 		if (audio) {
 			audio.addEventListener('timeupdate', updateProgress);
