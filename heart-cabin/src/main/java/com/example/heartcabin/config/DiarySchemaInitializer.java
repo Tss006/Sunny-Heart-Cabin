@@ -15,6 +15,7 @@ public class DiarySchemaInitializer implements CommandLineRunner {
     public void run(String... args) {
         ensureColumn("title", "ALTER TABLE diary ADD COLUMN title VARCHAR(255) NULL COMMENT '日记标题'");
         ensureColumn("mood", "ALTER TABLE diary ADD COLUMN mood VARCHAR(255) NULL COMMENT '心情标签'");
+        ensureColumn("weather", "ALTER TABLE diary ADD COLUMN weather VARCHAR(255) NULL COMMENT '天气标签'");
         ensureColumn("diary_id", "ALTER TABLE diary ADD COLUMN diary_id VARCHAR(64) NULL COMMENT '日记唯一标识'");
     }
 

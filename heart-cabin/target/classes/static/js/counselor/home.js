@@ -30,9 +30,21 @@
 			homeAvatar.src = account.avatar || 'images/avatar-default.png';
 			homeAvatar.alt = (account.name || account.nickname || account.username || '咨询师') + '头像';
 		}
-		if (pendingCount) pendingCount.textContent = '3';
-		if (activeCount) activeCount.textContent = '2';
-		if (totalCount) totalCount.textContent = '18';
+		if (typeof window.loadCounselorAppointmentSummary === 'function') {
+			window.loadCounselorAppointmentSummary().then(function(summary) {
+				if (pendingCount) pendingCount.textContent = String(summary.pending || 0);
+				if (activeCount) activeCount.textContent = String(summary.confirmed || 0);
+				if (totalCount) totalCount.textContent = String(summary.total || 0);
+			}).catch(function() {
+				if (pendingCount) pendingCount.textContent = '0';
+				if (activeCount) activeCount.textContent = '0';
+				if (totalCount) totalCount.textContent = '0';
+			});
+		} else {
+			if (pendingCount) pendingCount.textContent = '0';
+			if (activeCount) activeCount.textContent = '0';
+			if (totalCount) totalCount.textContent = '0';
+		}
 	}
 
 	window.renderCounselorHome = renderHome;

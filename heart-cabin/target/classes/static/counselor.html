@@ -16,6 +16,7 @@
       <li><a href="#" onclick="showPage('home', this)" class="active">首页</a></li>
       <li><a href="#" onclick="showPage('profile', this)">个人中心</a></li>
       <li><a href="#" onclick="showPage('consult', this)">用户咨询</a></li>
+      <li><a href="#" onclick="showPage('appointment', this)">预约管理</a></li>
     </ul>
     <button id="logout" class="logout-btn">退出登录</button>
   </div>
@@ -104,10 +105,94 @@
         </section>
       </div>
     </section>
+
+    <section id="appointment-content" class="counselor-page" style="display:none;">
+      <div class="counselor-hero hero-home appointment-hero">
+        <div>
+          <div class="counselor-kicker">预约管理</div>
+          <h1>处理用户预约和可预约时间</h1>
+          <p>查看待确认预约、更新预约状态，并维护每周的可预约时间段。</p>
+        </div>
+        <img class="hero-avatar" src="images/avatar-default.png" alt="预约管理头像">
+      </div>
+
+      <div class="metric-grid appointment-metric-grid">
+        <div class="metric-card">
+          <span>待确认</span>
+          <strong id="appointmentPendingCount">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>已确认</span>
+          <strong id="appointmentConfirmedCount">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>已完成</span>
+          <strong id="appointmentCompletedCount">0</strong>
+        </div>
+      </div>
+
+      <div class="appointment-layout">
+        <section class="panel-card appointment-list-panel">
+          <div class="panel-title-row">
+            <div>
+              <h2>预约列表</h2>
+              <p>按时间倒序显示所有来访预约</p>
+            </div>
+            <span class="badge" id="appointmentStatsBadge">等待加载</span>
+          </div>
+          <div class="appointment-list" id="counselorAppointmentList"></div>
+        </section>
+
+        <section class="panel-card appointment-time-panel">
+          <div class="panel-title-row">
+            <div>
+              <h2>可预约时间</h2>
+              <p>添加或切换你的可预约时段</p>
+            </div>
+            <span class="badge" id="timeSlotBadge">等待加载</span>
+          </div>
+
+          <form id="timeSlotForm" class="appointment-time-form">
+            <div class="time-slot-grid">
+              <label>
+                <span>星期</span>
+                <select id="appointmentDaySelect">
+                  <option value="Monday">周一</option>
+                  <option value="Tuesday">周二</option>
+                  <option value="Wednesday">周三</option>
+                  <option value="Thursday">周四</option>
+                  <option value="Friday">周五</option>
+                  <option value="Saturday">周六</option>
+                  <option value="Sunday">周日</option>
+                </select>
+              </label>
+              <label>
+                <span>开始时间</span>
+                <input id="appointmentStartTimeInput" type="time" value="09:00">
+              </label>
+              <label>
+                <span>结束时间</span>
+                <input id="appointmentEndTimeInput" type="time" value="10:00">
+              </label>
+            </div>
+            <label class="appointment-availability-toggle">
+              <input id="appointmentAvailableSwitch" type="checkbox" checked>
+              <span>允许预约</span>
+            </label>
+            <button type="submit" class="appointment-save-btn">保存时间段</button>
+            <div class="appointment-form-status" id="appointmentTimeFormStatus"></div>
+          </form>
+
+          <div class="time-slot-list" id="timeSlotList"></div>
+        </section>
+      </div>
+    </section>
   </div>
 
   <script src="js/counselor/home.js"></script>
   <script src="js/counselor/counselor.js"></script>
   <script src="js/counselor/chatForCounselor.js"></script>
+  <script src="js/appointment-api.js"></script>
+  <script src="js/counselor/appointment.js"></script>
 </body>
 </html>

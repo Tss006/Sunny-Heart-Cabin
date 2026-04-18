@@ -20,6 +20,7 @@
 	const guideModal = document.getElementById('testGuideModal');
 	const guideBackdrop = document.getElementById('testGuideBackdrop');
 	const guideClose = document.getElementById('testGuideClose');
+	const closeWidgetBtn = document.getElementById('closeTestWidgetBtn');
 	const testContent = document.getElementById('test-content');
 	const quizShell = document.querySelector('.test-quiz-shell');
 
@@ -280,19 +281,22 @@
 			alert('测评还未完成，暂时不能进行 AI 分析');
 			return;
 		}
-		const chatLink = Array.from(document.querySelectorAll('.sidebar-menu a')).find(link => link.textContent.trim() === 'AI 聊天');
-		if (!chatLink || typeof showPage !== 'function') {
-			alert('无法打开 AI 聊天页面');
+		const analysisPrompt = buildAnalysisPrompt();
+		if (typeof window.openAiChatWidgetWithPrompt === 'function') {
+			window.openAiChatWidgetWithPrompt(analysisPrompt, true);
 			return;
 		}
-		const analysisPrompt = buildAnalysisPrompt();
-		showPage('chat', chatLink);
-		if (typeof chatInput !== 'undefined') {
-			chatInput.value = analysisPrompt;
+		if (typeof window.openAiChatWidget === 'function') {
+			window.openAiChatWidget();
+			if (typeof window.chatInput !== 'undefined' && window.chatInput) {
+				window.chatInput.value = analysisPrompt;
+			}
+			if (typeof window.sendMessage === 'function') {
+				window.sendMessage();
+			}
+			return;
 		}
-		if (typeof sendMessage === 'function') {
-			sendMessage();
-		}
+		alert('无法打开 AI 聊天窗口');
 	}
 
 	function openMusicRecommendation() {
@@ -300,15 +304,60 @@
 			alert('暂无可用的测评结果');
 			return;
 		}
-		const musicLink = Array.from(document.querySelectorAll('.sidebar-menu a')).find(link => link.textContent.trim() === '治愈音乐');
-		if (!musicLink || typeof showPage !== 'function') {
-			alert('无法打开治愈音乐页面');
+		if (typeof window.openMusicWidget !== 'function') {
+			alert('无法打开治愈音乐窗口');
 			return;
 		}
 		localStorage.setItem('music_recommend_score', String(lastResultScore));
-		showPage('music', musicLink);
+		window.openMusicWidget();
 		if (typeof window.playMusicRecommendation === 'function') {
 			window.playMusicRecommendation(lastResultScore);
+		}
+	}
+
+	function isWidgetVisible() {
+		return !!(testContent && testContent.style.display !== 'none' && testContent.style.display !== '');
+	}
+
+	function openTestWidget() {
+		if (!testContent) return;
+		if (typeof window.closeMusicWidget === 'function') {
+			window.closeMusicWidget();
+		}
+		if (typeof window.closeHomeMessageWidget === 'function') {
+			window.closeHomeMessageWidget();
+		}
+		if (typeof window.closeMoodWidget === 'function') {
+			window.closeMoodWidget();
+		}
+		if (typeof window.closeAiChatWidget === 'function') {
+			window.closeAiChatWidget();
+		}
+		testContent.style.display = 'flex';
+		document.body.classList.add('widget-modal-open');
+		if (questions.length) {
+			if (resultCard && resultCard.style.display === 'flex') {
+				showResult({ score: lastResultScore || 0, level: resultLevel ? resultLevel.textContent : '', advice: resultAdvice ? resultAdvice.textContent : '' });
+			} else {
+				renderCurrentQuestion();
+			}
+		} else {
+			loadQuestions();
+		}
+	}
+
+	function closeTestWidget() {
+		if (!testContent) return;
+		testContent.style.display = 'none';
+		document.body.classList.remove('widget-modal-open');
+		closeGuideModal();
+	}
+
+	function toggleTestWidget() {
+		if (isWidgetVisible()) {
+			closeTestWidget();
+		} else {
+			openTestWidget();
 		}
 	}
 
@@ -324,7 +373,12 @@
 		if (infoBtn) infoBtn.onclick = openGuideModal;
 		if (guideBackdrop) guideBackdrop.onclick = closeGuideModal;
 		if (guideClose) guideClose.onclick = closeGuideModal;
+		if (closeWidgetBtn) closeWidgetBtn.onclick = closeTestWidget;
 		window.addEventListener('keydown', function(event) {
+			if (event.key === 'Escape' && isWidgetVisible()) {
+				closeTestWidget();
+				return;
+			}
 			if (event.key === 'Escape') {
 				closeGuideModal();
 			}
@@ -344,6 +398,10 @@
 		bindGuideModal();
 		loadQuestions();
 	}
+
+	window.openTestWidget = openTestWidget;
+	window.closeTestWidget = closeTestWidget;
+	window.toggleTestWidget = toggleTestWidget;
 
 	window.addEventListener('DOMContentLoaded', init);
 	if (document.readyState !== 'loading') {

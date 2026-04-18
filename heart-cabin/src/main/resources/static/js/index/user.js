@@ -24,6 +24,34 @@ let settingsSavePhoneBtn = null;
 let settingsExportBtn = null;
 let settingsTrigger = null;
 
+let bluetoothModal = null;
+let bluetoothCloseBtn = null;
+let bluetoothBackdrop = null;
+let bluetoothTrigger = null;
+let bluetoothConnectBtn = null;
+let bluetoothCompatConnectBtn = null;
+let bluetoothDisconnectBtn = null;
+let bluetoothSyncBtn = null;
+let bluetoothStatusChip = null;
+let bluetoothDeviceName = null;
+let bluetoothHeartRateValue = null;
+let bluetoothLastSyncValue = null;
+let bluetoothRecordDateValue = null;
+let bluetoothSupportHint = null;
+let bluetoothLog = null;
+let bluetoothDevice = null;
+let bluetoothServer = null;
+let bluetoothHeartRateCharacteristic = null;
+let bluetoothMeasurementListener = null;
+let bluetoothCurrentHeartRate = null;
+let bluetoothLastSyncAt = 0;
+let bluetoothIsConnecting = false;
+let bluetoothIsSyncing = false;
+
+const BLUETOOTH_HEART_RATE_SERVICE_UUID = 'heart_rate';
+const BLUETOOTH_HEART_RATE_MEASUREMENT_UUID = 'heart_rate_measurement';
+const BLUETOOTH_SYNC_INTERVAL = 30000;
+
 const THEME_STORAGE_KEY = 'site_theme';
 
 function formatCount(value) {
@@ -221,6 +249,7 @@ function openSettingsModal() {
 	if (!settingsModal) {
 		return;
 	}
+	closeBluetoothModal();
 	closeReportModal();
 	const theme = getStoredTheme();
 	applyTheme(theme);
@@ -248,6 +277,371 @@ function closeSettingsModal() {
 	settingsModal.style.display = 'none';
 	document.body.classList.remove('settings-modal-open');
 	setSettingsStatus('');
+}
+
+function escapeHtml(value) {
+	if (value === null || value === undefined) {
+		return '';
+	}
+	return String(value)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+function isBluetoothSupported() {
+	return typeof navigator !== 'undefined' && Boolean(navigator.bluetooth) && window.isSecureContext;
+}
+
+function getLocalDateString(date) {
+	const currentDate = date instanceof Date ? date : new Date();
+	const year = currentDate.getFullYear();
+	const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+	const day = String(currentDate.getDate()).padStart(2, '0');
+	return year + '-' + month + '-' + day;
+}
+
+function formatBluetoothDateTime(value) {
+	const currentDate = value instanceof Date ? value : new Date(value);
+	if (Number.isNaN(currentDate.getTime())) {
+		return '--';
+	}
+	const year = currentDate.getFullYear();
+	const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+	const day = String(currentDate.getDate()).padStart(2, '0');
+	const hours = String(currentDate.getHours()).padStart(2, '0');
+	const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+	const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+	return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+}
+
+function getBluetoothSupportText() {
+	if (typeof navigator === 'undefined' || !navigator.bluetooth) {
+		return '当前浏览器不支持 Web Bluetooth，请使用 Chrome 或 Edge。';
+	}
+	if (!window.isSecureContext) {
+		return 'Web Bluetooth 需要安全上下文，请通过 localhost 或 https 打开页面。';
+	}
+	return '支持标准 BLE 心率设备。若是小米手环，建议先断开手机 App 占用，再尝试兼容搜索。';
+}
+
+function isBluetoothConnected() {
+	return Boolean(bluetoothDevice && bluetoothDevice.gatt && bluetoothDevice.gatt.connected);
+}
+
+function setBluetoothStatusChip(text, type) {
+	if (!bluetoothStatusChip) {
+		return;
+	}
+	bluetoothStatusChip.textContent = text;
+	bluetoothStatusChip.classList.remove('is-success', 'is-warning', 'is-error');
+	if (type) {
+		bluetoothStatusChip.classList.add('is-' + type);
+	}
+}
+
+function setBluetoothLog(message, isError) {
+	if (!bluetoothLog) {
+		return;
+	}
+	bluetoothLog.textContent = message || '';
+	bluetoothLog.classList.toggle('is-error', Boolean(isError));
+}
+
+function clearBluetoothCharacteristicListener() {
+	if (bluetoothHeartRateCharacteristic && bluetoothMeasurementListener) {
+		try {
+			bluetoothHeartRateCharacteristic.removeEventListener('characteristicvaluechanged', bluetoothMeasurementListener);
+		} catch (error) {
+			// ignore cleanup failures
+		}
+	}
+	bluetoothHeartRateCharacteristic = null;
+	bluetoothMeasurementListener = null;
+}
+
+function updateBluetoothUi() {
+	const supportReady = isBluetoothSupported();
+	const connected = isBluetoothConnected();
+
+	if (bluetoothSupportHint) {
+		bluetoothSupportHint.textContent = getBluetoothSupportText();
+	}
+
+	if (bluetoothDeviceName) {
+		if (bluetoothDevice && bluetoothDevice.name) {
+			bluetoothDeviceName.textContent = bluetoothDevice.name;
+		} else if (connected) {
+			bluetoothDeviceName.textContent = '未知设备';
+		} else {
+			bluetoothDeviceName.textContent = '未连接';
+		}
+	}
+
+	if (bluetoothHeartRateValue) {
+		bluetoothHeartRateValue.textContent = bluetoothCurrentHeartRate ? bluetoothCurrentHeartRate + ' 次/分' : '等待数据';
+	}
+
+	if (bluetoothLastSyncValue) {
+		bluetoothLastSyncValue.textContent = bluetoothLastSyncAt ? formatBluetoothDateTime(bluetoothLastSyncAt) : '尚未同步';
+	}
+
+	if (bluetoothRecordDateValue) {
+		bluetoothRecordDateValue.textContent = getLocalDateString();
+	}
+
+	if (bluetoothConnectBtn) {
+		bluetoothConnectBtn.disabled = !supportReady || bluetoothIsConnecting || connected;
+		if (bluetoothIsConnecting) {
+			bluetoothConnectBtn.textContent = '连接中...';
+		} else if (connected) {
+			bluetoothConnectBtn.textContent = '已连接';
+		} else if (bluetoothDevice) {
+			bluetoothConnectBtn.textContent = '重新连接';
+		} else {
+			bluetoothConnectBtn.textContent = '连接设备';
+		}
+	}
+
+	if (bluetoothCompatConnectBtn) {
+		bluetoothCompatConnectBtn.disabled = !supportReady || bluetoothIsConnecting || connected;
+		if (bluetoothIsConnecting) {
+			bluetoothCompatConnectBtn.textContent = '连接中...';
+		} else if (connected) {
+			bluetoothCompatConnectBtn.textContent = '已连接';
+		} else {
+			bluetoothCompatConnectBtn.textContent = '兼容搜索';
+		}
+	}
+
+	if (bluetoothDisconnectBtn) {
+		bluetoothDisconnectBtn.disabled = !connected || bluetoothIsConnecting;
+	}
+
+	if (bluetoothSyncBtn) {
+		bluetoothSyncBtn.disabled = !connected || bluetoothIsConnecting || bluetoothIsSyncing || !bluetoothCurrentHeartRate;
+	}
+
+	if (bluetoothStatusChip) {
+		if (!supportReady) {
+			setBluetoothStatusChip('不支持', 'error');
+		} else if (bluetoothIsConnecting) {
+			setBluetoothStatusChip('连接中', 'warning');
+		} else if (bluetoothIsSyncing) {
+			setBluetoothStatusChip('同步中', 'warning');
+		} else if (connected) {
+			setBluetoothStatusChip('已连接', 'success');
+		} else if (bluetoothDevice) {
+			setBluetoothStatusChip('已断开', 'warning');
+		} else {
+			setBluetoothStatusChip('未连接');
+		}
+	}
+}
+
+function closeBluetoothModal() {
+	if (!bluetoothModal) {
+		return;
+	}
+	bluetoothModal.style.display = 'none';
+	document.body.classList.remove('bluetooth-modal-open');
+}
+
+function openBluetoothModal() {
+	if (!bluetoothModal) {
+		return;
+	}
+	closeReportModal();
+	closeSettingsModal();
+	updateBluetoothUi();
+	bluetoothModal.style.display = 'flex';
+	document.body.classList.add('bluetooth-modal-open');
+}
+
+function handleBluetoothDisconnected() {
+	bluetoothIsConnecting = false;
+	bluetoothIsSyncing = false;
+	bluetoothServer = null;
+	clearBluetoothCharacteristicListener();
+	setBluetoothStatusChip('已断开', 'warning');
+	setBluetoothLog('设备连接已断开，可以重新连接。');
+	updateBluetoothUi();
+}
+
+function parseBluetoothHeartRate(dataView) {
+	if (!dataView || dataView.byteLength < 2) {
+		return null;
+	}
+	const flags = dataView.getUint8(0);
+	const isUint16 = Boolean(flags & 0x01);
+	return isUint16 ? dataView.getUint16(1, true) : dataView.getUint8(1);
+}
+
+function handleBluetoothMeasurement(event) {
+	const dataView = event && event.target ? event.target.value : null;
+	const heartRate = parseBluetoothHeartRate(dataView);
+	if (!heartRate || heartRate <= 0) {
+		return;
+	}
+	bluetoothCurrentHeartRate = heartRate;
+	updateBluetoothUi();
+	setBluetoothLog('已接收到心率 ' + heartRate + ' 次/分。');
+	if (!bluetoothLastSyncAt || Date.now() - bluetoothLastSyncAt >= BLUETOOTH_SYNC_INTERVAL) {
+		syncBluetoothHeartRate(false);
+	}
+}
+
+async function syncBluetoothHeartRate(force) {
+	if (!isBluetoothConnected()) {
+		setBluetoothLog('请先连接蓝牙设备后再同步。', true);
+		updateBluetoothUi();
+		return;
+	}
+	if (!bluetoothCurrentHeartRate) {
+		setBluetoothLog('当前没有可同步的心率数据。', true);
+		updateBluetoothUi();
+		return;
+	}
+	const now = Date.now();
+	if (!force && bluetoothLastSyncAt && now - bluetoothLastSyncAt < BLUETOOTH_SYNC_INTERVAL) {
+		return;
+	}
+	const userId = getCurrentUserId();
+	if (!userId) {
+		setBluetoothLog('未获取到用户信息，请先登录后再同步。', true);
+		updateBluetoothUi();
+		return;
+	}
+	const parsedUserId = Number(userId);
+	const payloadUserId = Number.isNaN(parsedUserId) ? userId : parsedUserId;
+	const token = localStorage.getItem('token');
+	const requestConfig = token ? {
+		headers: {
+			token: token
+		}
+	} : {};
+
+	bluetoothIsSyncing = true;
+	setBluetoothStatusChip('同步中', 'warning');
+	setBluetoothLog('正在把心率写入报告...');
+	updateBluetoothUi();
+
+	try {
+		const response = await axios.post('/report/add', {
+			userId: payloadUserId,
+			heartRate: bluetoothCurrentHeartRate,
+			sleepHours: null,
+			steps: null,
+			recordDate: getLocalDateString()
+		}, requestConfig);
+		if (response && response.data && response.data.code === 200) {
+			bluetoothLastSyncAt = Date.now();
+			setBluetoothStatusChip('已连接', 'success');
+			setBluetoothLog('心率已同步到我的报告。');
+			return;
+		}
+		setBluetoothLog((response && response.data && response.data.msg) || '心率同步失败。', true);
+	} catch (error) {
+		setBluetoothLog('心率同步失败，请稍后重试。', true);
+	} finally {
+		bluetoothIsSyncing = false;
+		updateBluetoothUi();
+	}
+}
+
+async function connectBluetoothDevice() {
+	return connectBluetoothDeviceWithMode('standard');
+}
+
+async function connectBluetoothCompatDevice() {
+	return connectBluetoothDeviceWithMode('compat');
+}
+
+async function connectBluetoothDeviceWithMode(mode) {
+	if (!isBluetoothSupported()) {
+		setBluetoothStatusChip('不支持', 'error');
+		setBluetoothLog(getBluetoothSupportText(), true);
+		updateBluetoothUi();
+		return;
+	}
+	if (bluetoothIsConnecting) {
+		return;
+	}
+
+	bluetoothIsConnecting = true;
+	setBluetoothStatusChip('连接中', 'warning');
+	setBluetoothLog(mode === 'compat' ? '正在打开兼容设备选择器...' : '正在打开设备选择器...');
+	updateBluetoothUi();
+
+	try {
+		const requestOptions = mode === 'compat' ? {
+			acceptAllDevices: true,
+			optionalServices: [BLUETOOTH_HEART_RATE_SERVICE_UUID, 'battery_service', 'device_information']
+		} : {
+			filters: [
+				{ services: [BLUETOOTH_HEART_RATE_SERVICE_UUID] },
+				{ namePrefix: 'Mi' },
+				{ namePrefix: 'Xiaomi' },
+				{ namePrefix: 'Redmi' },
+				{ namePrefix: 'Miband' },
+				{ namePrefix: 'Mi Smart Band' }
+			],
+			optionalServices: [BLUETOOTH_HEART_RATE_SERVICE_UUID, 'battery_service', 'device_information']
+		};
+		const device = await navigator.bluetooth.requestDevice(requestOptions);
+		bluetoothDevice = device;
+		if (bluetoothDevice) {
+			bluetoothDevice.removeEventListener('gattserverdisconnected', handleBluetoothDisconnected);
+			bluetoothDevice.addEventListener('gattserverdisconnected', handleBluetoothDisconnected);
+		}
+
+		bluetoothServer = await bluetoothDevice.gatt.connect();
+		const service = await bluetoothServer.getPrimaryService(BLUETOOTH_HEART_RATE_SERVICE_UUID);
+		const characteristic = await service.getCharacteristic(BLUETOOTH_HEART_RATE_MEASUREMENT_UUID);
+		clearBluetoothCharacteristicListener();
+		bluetoothHeartRateCharacteristic = characteristic;
+		bluetoothMeasurementListener = handleBluetoothMeasurement;
+		bluetoothHeartRateCharacteristic.addEventListener('characteristicvaluechanged', bluetoothMeasurementListener);
+		await bluetoothHeartRateCharacteristic.startNotifications();
+
+		bluetoothCurrentHeartRate = null;
+		bluetoothLastSyncAt = 0;
+		setBluetoothStatusChip('已连接', 'success');
+		setBluetoothLog(mode === 'compat' ? '兼容设备已连接，等待心率数据。' : '设备已连接，等待心率数据。');
+	} catch (error) {
+		bluetoothServer = null;
+		clearBluetoothCharacteristicListener();
+		if (error && error.name === 'NotFoundError') {
+			setBluetoothLog(mode === 'compat' ? '没有找到可连接的设备，请确认手环已进入可发现状态。' : '没有找到匹配设备，建议改用兼容搜索。');
+		} else if (error && error.name === 'NotAllowedError') {
+			setBluetoothLog('浏览器阻止了蓝牙请求，请检查权限。', true);
+		} else {
+			setBluetoothLog(mode === 'compat' ? '兼容搜索仍然失败，请确认手环未被手机 App 占用并且已可发现。' : '蓝牙连接失败，请确认设备已开启并支持心率服务。', true);
+		}
+	} finally {
+		bluetoothIsConnecting = false;
+		updateBluetoothUi();
+	}
+}
+
+function disconnectBluetoothDevice() {
+	if (!bluetoothDevice || !bluetoothDevice.gatt) {
+		setBluetoothLog('当前没有可断开的蓝牙设备。');
+		updateBluetoothUi();
+		return;
+	}
+	if (!bluetoothDevice.gatt.connected) {
+		handleBluetoothDisconnected();
+		return;
+	}
+	bluetoothIsConnecting = false;
+	bluetoothIsSyncing = false;
+	setBluetoothStatusChip('断开中', 'warning');
+	setBluetoothLog('正在断开设备连接...');
+	updateBluetoothUi();
+	bluetoothDevice.gatt.disconnect();
 }
 
 function downloadJsonFile(filename, data) {
@@ -297,7 +691,7 @@ function savePhoneBinding() {
 		return;
 	}
 	setSettingsStatus('正在保存手机号...');
-	axios.post('user/info/update', {
+	axios.post('/user/info/update', {
 		id: currentUserProfile.id,
 		nickname: currentUserProfile.nickname || currentUserProfile.username || '',
 		age: currentUserProfile.age || 0,
@@ -429,6 +823,7 @@ function syncSettingsProfileFields(user) {
 
 function openReportModal() {
 	if (reportModal) {
+		closeBluetoothModal();
 		closeSettingsModal();
 		reportModal.style.display = 'flex';
 		document.body.classList.add('report-modal-open');
@@ -558,7 +953,7 @@ function loadUserProfile(token) {
 		return;
 	}
 
-	axios.get('user/info', {
+	axios.get('/user/info', {
 		headers: {
 			token: token
 		}
@@ -648,7 +1043,7 @@ function saveProfile(token) {
 		phone: currentUserProfile.phone || ''
 	};
 
-	axios.post('user/info/update', payload, {
+	axios.post('/user/info/update', payload, {
 		headers: {
 			token: token
 		}
@@ -703,6 +1098,8 @@ window.changeAvatar = changeAvatar;
 window.incrementUserStat = incrementUserStat;
 window.loadTestReports = loadTestReports;
 window.openSettingsModal = openSettingsModal;
+window.openBluetoothModal = openBluetoothModal;
+window.syncBluetoothHeartRate = syncBluetoothHeartRate;
 
 document.addEventListener('DOMContentLoaded', function() {
 	applyTheme(getStoredTheme());
@@ -730,10 +1127,30 @@ document.addEventListener('DOMContentLoaded', function() {
 	settingsSavePhoneBtn = document.getElementById('settingsSavePhoneBtn');
 	settingsExportBtn = document.getElementById('settingsExportBtn');
 	settingsTrigger = document.getElementById('settingBtn');
+	bluetoothModal = document.getElementById('bluetoothModal');
+	bluetoothCloseBtn = document.getElementById('bluetoothClose');
+	bluetoothBackdrop = document.getElementById('bluetoothBackdrop');
+	bluetoothTrigger = document.getElementById('bluetoothBtn');
+	bluetoothConnectBtn = document.getElementById('bluetoothConnectBtn');
+	bluetoothCompatConnectBtn = document.getElementById('bluetoothCompatConnectBtn');
+	bluetoothDisconnectBtn = document.getElementById('bluetoothDisconnectBtn');
+	bluetoothSyncBtn = document.getElementById('bluetoothSyncBtn');
+	bluetoothStatusChip = document.getElementById('bluetoothStatusChip');
+	bluetoothDeviceName = document.getElementById('bluetoothDeviceName');
+	bluetoothHeartRateValue = document.getElementById('bluetoothHeartRateValue');
+	bluetoothLastSyncValue = document.getElementById('bluetoothLastSyncValue');
+	bluetoothRecordDateValue = document.getElementById('bluetoothRecordDateValue');
+	bluetoothSupportHint = document.getElementById('bluetoothSupportHint');
+	bluetoothLog = document.getElementById('bluetoothLog');
+	updateBluetoothUi();
+	if (document.getElementById('user-content')) {
+		loadUserProfile(localStorage.getItem('token'));
+	}
 	const reportTrigger = document.getElementById('myReportBtn');
 	if (reportTrigger) {
 		reportTrigger.addEventListener('click', function() {
 			closeSettingsModal();
+			closeBluetoothModal();
 			reportTrigger.dataset.loading = 'true';
 			loadTestReports();
 			reportTrigger.dataset.loading = 'false';
@@ -766,6 +1183,35 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (settingsBackdrop) {
 		settingsBackdrop.addEventListener('click', closeSettingsModal);
 	}
+	if (bluetoothTrigger) {
+		bluetoothTrigger.addEventListener('click', openBluetoothModal);
+		bluetoothTrigger.addEventListener('keydown', function(event) {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				openBluetoothModal();
+			}
+		});
+	}
+	if (bluetoothCloseBtn) {
+		bluetoothCloseBtn.addEventListener('click', closeBluetoothModal);
+	}
+	if (bluetoothBackdrop) {
+		bluetoothBackdrop.addEventListener('click', closeBluetoothModal);
+	}
+	if (bluetoothConnectBtn) {
+		bluetoothConnectBtn.addEventListener('click', connectBluetoothDevice);
+	}
+	if (bluetoothCompatConnectBtn) {
+		bluetoothCompatConnectBtn.addEventListener('click', connectBluetoothCompatDevice);
+	}
+	if (bluetoothDisconnectBtn) {
+		bluetoothDisconnectBtn.addEventListener('click', disconnectBluetoothDevice);
+	}
+	if (bluetoothSyncBtn) {
+		bluetoothSyncBtn.addEventListener('click', function() {
+			syncBluetoothHeartRate(true);
+		});
+	}
 	if (settingsThemeLightBtn) {
 		settingsThemeLightBtn.addEventListener('click', function() {
 			applyTheme('light');
@@ -789,6 +1235,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (event.key === 'Escape') {
 			closeReportModal();
 			closeSettingsModal();
+			closeBluetoothModal();
 		}
 	});
+	updateBluetoothUi();
 });

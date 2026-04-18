@@ -3,57 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>心晴小屋 - 登录</title>
+  <title>心晴小屋 - 登录与注册</title>
   <link rel="stylesheet" href="css/login.css">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="login-page">
 
-  
-<body class="login-page"></body>
-
-  <div class="background">
-    <div class="photo-container"></div>
-    <div class="sticker-container">
-      <div class="sticker sun"></div>
-      <div class="sticker cloud1"></div>
-      <div class="sticker cloud2"></div>
-      <div class="sticker star1"></div>
-      <div class="sticker star2"></div>
-      <div class="sticker heart1"></div>
-      <div class="sticker heart2"></div>
-      <div class="sticker moon"></div>
-    </div>
+  <div class="login-bg-layer" aria-hidden="true">
+    <span class="bg-cloud bg-cloud-1"></span>
+    <span class="bg-cloud bg-cloud-2"></span>
+    <span class="bg-heart bg-heart-1"></span>
+    <span class="bg-heart bg-heart-2"></span>
+    <span class="bg-bubble bg-bubble-1"></span>
+    <span class="bg-bubble bg-bubble-2"></span>
+    <span class="bg-bubble bg-bubble-3"></span>
   </div>
 
-  <div class="bg-animation">
-    <div class="floating-element element-1"></div>
-    <div class="floating-element element-2"></div>
-    <div class="floating-element element-3"></div>
-    <div class="floating-element element-4"></div>
-  </div>
-
-  <div class="auth-card login-card">
-    <div class="card-header">
-      <h1 class="main-title">心晴小屋</h1>
-      <p class="subtitle">愿每一种情绪，都能被温柔接住</p>
-    </div>
-
-    <form class="auth-form login-form">
-      <div id="error-message" class="error-message" style="display: none;"></div>
-      <div class="form-group">
-        <label for="login-account">账号</label>
-        <input type="text" id="login-account" placeholder="请输入您的账号" required>
+  <div class="login-container">
+    <section class="login-card login-background-with-animation">
+      <div class="login-brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L2 12H5V20H19V12H22L12 3Z" stroke="#2c5234" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M9 12V17" stroke="#2c5234" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M15 12V17" stroke="#2c5234" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="login-title">心晴小屋</h1>
+          <p class="auth-subtitle" id="auth-subtitle">愿每一种情绪，都能被温柔接住</p>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="login-password">密码</label>
-        <input type="password" id="login-password" placeholder="请输入密码" required>
-      </div>
-      <button type="submit" class="btn-primary">登录</button>
-    </form>
 
-    <div class="card-footer">
-      <a href="register.html" class="link-text">还没有账号？前往注册</a>
-    </div>
+      <div class="mode-tabs" role="tablist" aria-label="登录或注册切换">
+        <button type="button" class="mode-tab is-active" data-mode-tab="login">用户登录</button>
+        <button type="button" class="mode-tab" data-mode-tab="register">用户注册</button>
+      </div>
+
+      <form class="auth-form login-form" id="login-form" novalidate>
+        <div id="login-error" class="error-message" style="display: none;"></div>
+
+        <div class="role-group" aria-label="登录身份选择">
+          <button type="button" class="role-btn active" data-role-btn="user">普通用户</button>
+          <button type="button" class="role-btn" data-role-btn="counselor">校园心理师</button>
+        </div>
+
+        <div class="form-group">
+          <label for="login-account">用户名</label>
+          <input type="text" id="login-account" class="login-input" placeholder="例如：admin" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">密码</label>
+          <input type="password" id="login-password" class="login-input" placeholder="例如：123456" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="login-btn">GO</button>
+
+        <div class="helper-line">
+          新用户？
+          <button type="button" class="register-link" data-switch-to="register">在这注册！</button>
+        </div>
+
+        <div class="demo-account">演示账号：admin / 123456</div>
+      </form>
+
+      <form class="auth-form register-form" id="register-form" hidden novalidate>
+        <div id="register-error" class="error-message" style="display: none;"></div>
+        <div class="form-group">
+          <label for="register-nickname">昵称</label>
+          <input id="register-nickname" class="login-input" type="text" placeholder="请输入昵称" autocomplete="nickname" required>
+        </div>
+        <div class="form-group">
+          <label for="register-username">用户名</label>
+          <input id="register-username" class="login-input" type="text" placeholder="请输入用户名" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label for="register-password">密码</label>
+          <input id="register-password" class="login-input" type="password" placeholder="请输入密码" autocomplete="new-password" required>
+        </div>
+        <div class="form-group">
+          <label for="register-password2">确认密码</label>
+          <input id="register-password2" class="login-input" type="password" placeholder="请再次输入密码" autocomplete="new-password" required>
+        </div>
+
+        <button type="submit" class="login-btn">注册</button>
+
+        <div class="helper-line">
+          已有账号？
+          <button type="button" class="register-link" data-switch-to="login">去登录！</button>
+        </div>
+      </form>
+    </section>
   </div>
-<script src="js/login.js"></script>
+
+  <script src="js/login.js"></script>
 </body>
 </html>

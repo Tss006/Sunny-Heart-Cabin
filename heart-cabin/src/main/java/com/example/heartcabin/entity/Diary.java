@@ -12,4 +12,5 @@ public class Diary {
     private LocalDateTime create_time; // 确保字段命名与前端一致
     private String title;
     private String diary_id; // 将 chat_id 修改为 diary_id
+    private String weather;
 }

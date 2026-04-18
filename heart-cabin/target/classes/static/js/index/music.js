@@ -23,12 +23,22 @@
 	const prevBtn = document.getElementById('musicPrevBtn');
 	const playToggleBtn = document.getElementById('musicPlayToggleBtn');
 	const playToggleIcon = document.getElementById('musicPlayToggleIcon');
-	const playToggleText = document.getElementById('musicPlayToggleText');
 	const nextBtn = document.getElementById('musicNextBtn');
 	const modeBtn = document.getElementById('musicModeBtn');
 	const modeIcon = document.getElementById('musicModeIcon');
-	const modeText = document.getElementById('musicModeText');
+	const volumeBtn = document.getElementById('musicVolumeBtn');
+	const volumeIcon = document.getElementById('musicVolumeIcon');
+	const volumeText = document.getElementById('musicVolumeText');
+	const volumeSlider = document.getElementById('musicVolumeSlider');
+	const volumeControl = document.getElementById('musicVolumeControl');
 	const audio = document.getElementById('musicAudio');
+	const floatingMusicWidget = document.getElementById('floatingMusicWidget');
+	const floatingMusicTitle = document.getElementById('floatingMusicTitle');
+	const floatingMusicPrevBtn = document.getElementById('floatingMusicPrevBtn');
+	const floatingMusicPlayToggleBtn = document.getElementById('floatingMusicPlayToggleBtn');
+	const floatingMusicPlayIcon = document.getElementById('floatingMusicPlayIcon');
+	const floatingMusicNextBtn = document.getElementById('floatingMusicNextBtn');
+	const closeWidgetBtn = document.getElementById('closeMusicWidgetBtn');
 
 	const MODE_SEQUENCE = ['list', 'single', 'random'];
 	const MODE_META = {
@@ -40,13 +50,24 @@
 		play: { label: '播放', icon: 'icons/music-fast-forward.svg' },
 		pause: { label: '暂停', icon: 'icons/music-pause.svg' }
 	};
+	const VOLUME_META = {
+		sound: { label: '静音', icon: 'icons/music-volume.svg' },
+		muted: { label: '恢复声音', icon: 'icons/music-volume-muted.svg' }
+	};
 	const RECOMMENDATION_SCORE_KEY = 'music_recommend_score';
+	const VOLUME_STORAGE_KEY = 'music_volume_level';
+	const LAST_VOLUME_STORAGE_KEY = 'music_volume_last_level';
+	const MUTE_STORAGE_KEY = 'music_volume_muted';
+	const DEFAULT_VOLUME = 0.8;
 
 	const state = {
 		songs: [],
 		filteredSongs: [],
 		currentSongId: '',
 		mode: 'list',
+		volume: DEFAULT_VOLUME,
+		lastVolume: DEFAULT_VOLUME,
+		isMuted: false,
 		isLoaded: false,
 		isSeeking: false,
 		activePointerId: null,
@@ -95,6 +116,111 @@
 		return state.filteredSongs.findIndex(song => song.id === state.currentSongId);
 	}
 
+	function clampVolume(value) {
+		if (!Number.isFinite(value)) return DEFAULT_VOLUME;
+		return Math.min(1, Math.max(0, value));
+	}
+
+	function loadVolumePreference() {
+		const storedVolume = Number(localStorage.getItem(VOLUME_STORAGE_KEY));
+		if (Number.isFinite(storedVolume) && storedVolume >= 0) {
+			state.volume = clampVolume(storedVolume);
+		}
+		const storedLastVolume = Number(localStorage.getItem(LAST_VOLUME_STORAGE_KEY));
+		if (Number.isFinite(storedLastVolume) && storedLastVolume > 0) {
+			state.lastVolume = clampVolume(storedLastVolume);
+		} else if (state.volume > 0) {
+			state.lastVolume = state.volume;
+		} else {
+			state.lastVolume = DEFAULT_VOLUME;
+		}
+		state.isMuted = localStorage.getItem(MUTE_STORAGE_KEY) === 'true';
+	}
+
+	function persistVolumePreference() {
+		localStorage.setItem(VOLUME_STORAGE_KEY, String(state.volume));
+		localStorage.setItem(LAST_VOLUME_STORAGE_KEY, String(state.lastVolume));
+		localStorage.setItem(MUTE_STORAGE_KEY, String(state.isMuted));
+	}
+
+	function applyVolumePreference() {
+		if (!audio) return;
+		audio.volume = clampVolume(state.volume);
+		audio.muted = state.isMuted || state.volume <= 0;
+		state.isMuted = audio.muted;
+		if (state.volume > 0) {
+			state.lastVolume = state.volume;
+		}
+	}
+
+	function updateVolumeButton() {
+		if (!volumeBtn) return;
+		const currentVolume = clampVolume(state.volume);
+		const isMuted = !!(audio && audio.muted) || state.isMuted || currentVolume <= 0;
+		const percent = Math.round(currentVolume * 100);
+		const meta = isMuted ? VOLUME_META.muted : VOLUME_META.sound;
+		if (volumeIcon) volumeIcon.src = meta.icon;
+		if (volumeText) volumeText.textContent = isMuted ? '静音' : `${percent}%`;
+		volumeBtn.title = meta.label;
+		volumeBtn.setAttribute('aria-label', meta.label);
+		if (volumeSlider) {
+			volumeSlider.value = String(percent);
+			volumeSlider.style.setProperty('--volume-percent', `${percent}%`);
+			volumeSlider.setAttribute('aria-valuetext', isMuted ? '静音' : `${percent}%`);
+		}
+		if (volumeControl) {
+			volumeControl.classList.toggle('is-muted', isMuted);
+		}
+	}
+
+	function handleVolumeInput() {
+		if (!audio || !volumeSlider) return;
+		const nextVolume = clampVolume(Number(volumeSlider.value) / 100);
+		state.volume = nextVolume;
+		if (nextVolume > 0) {
+			state.lastVolume = nextVolume;
+			state.isMuted = false;
+			audio.muted = false;
+			audio.volume = nextVolume;
+		} else {
+			state.isMuted = true;
+			audio.muted = true;
+			audio.volume = 0;
+		}
+		persistVolumePreference();
+		updateVolumeButton();
+	}
+
+	function handleVolumeChange() {
+		if (!audio) return;
+		const currentVolume = clampVolume(audio.volume);
+		state.volume = currentVolume;
+		if (currentVolume > 0) {
+			state.lastVolume = currentVolume;
+		}
+		state.isMuted = audio.muted || currentVolume <= 0;
+		persistVolumePreference();
+		updateVolumeButton();
+	}
+
+	function toggleVolume() {
+		if (!audio) return;
+		if (state.isMuted || audio.muted || state.volume <= 0) {
+			const restoreVolume = state.volume > 0 ? state.volume : (state.lastVolume > 0 ? state.lastVolume : DEFAULT_VOLUME);
+			state.volume = restoreVolume;
+			state.lastVolume = restoreVolume;
+			state.isMuted = false;
+			audio.muted = false;
+			audio.volume = restoreVolume;
+		} else {
+			state.lastVolume = state.volume > 0 ? state.volume : state.lastVolume;
+			audio.muted = true;
+			state.isMuted = true;
+		}
+		persistVolumePreference();
+		updateVolumeButton();
+	}
+
 	function setEmptyState(message, visible) {
 		if (!musicEmptyState) return;
 		musicEmptyState.textContent = message;
@@ -135,9 +261,80 @@
 		if (nextBtn) nextBtn.disabled = state.filteredSongs.length === 0;
 		if (playToggleBtn) playToggleBtn.disabled = state.filteredSongs.length === 0;
 		if (playToggleIcon) playToggleIcon.src = isPlaying ? PLAY_META.pause.icon : PLAY_META.play.icon;
-		if (playToggleText) playToggleText.textContent = isPlaying ? PLAY_META.pause.label : PLAY_META.play.label;
 		if (playToggleBtn) playToggleBtn.title = isPlaying ? PLAY_META.pause.label : PLAY_META.play.label;
 		if (musicProgressTrack) musicProgressTrack.setAttribute('aria-valuenow', String(Math.round(getProgressPercent())));
+		updateVolumeButton();
+		updateFloatingWidget(currentSong, isPlaying);
+	}
+
+	function isMusicPageVisible() {
+		if (!musicPage) return false;
+		return musicPage.style.display !== 'none';
+	}
+
+	function openMusicWidget() {
+		if (!musicPage) return;
+		if (typeof window.closeTestWidget === 'function') {
+			window.closeTestWidget();
+		}
+		if (typeof window.closeMoodWidget === 'function') {
+			window.closeMoodWidget();
+		}
+		if (typeof window.closeHomeMessageWidget === 'function') {
+			window.closeHomeMessageWidget();
+		}
+		if (typeof window.closeAiChatWidget === 'function') {
+			window.closeAiChatWidget();
+		}
+		musicPage.style.display = 'flex';
+		document.body.classList.add('widget-modal-open');
+		if (!state.isLoaded) {
+			loadMusicLibrary();
+		}
+		if (musicSearchInput) {
+			musicSearchInput.focus();
+		}
+		updatePlayerHeader();
+	}
+
+	function closeMusicWidget() {
+		if (!musicPage) return;
+		musicPage.style.display = 'none';
+		document.body.classList.remove('widget-modal-open');
+		updatePlayerHeader();
+	}
+
+	function toggleMusicWidget() {
+		if (isMusicPageVisible()) {
+			closeMusicWidget();
+		} else {
+			openMusicWidget();
+		}
+	}
+
+	function updateFloatingWidget(currentSong, isPlaying) {
+		if (!floatingMusicWidget) return;
+		const shouldShow = !!(currentSong && isPlaying && !isMusicPageVisible());
+		floatingMusicWidget.style.display = shouldShow ? 'flex' : 'none';
+		if (!shouldShow) return;
+
+		if (floatingMusicTitle) {
+			floatingMusicTitle.textContent = currentSong.title;
+		}
+		if (floatingMusicPlayIcon) {
+			floatingMusicPlayIcon.src = isPlaying ? PLAY_META.pause.icon : PLAY_META.play.icon;
+		}
+		if (floatingMusicPlayToggleBtn) {
+			const actionLabel = isPlaying ? PLAY_META.pause.label : PLAY_META.play.label;
+			floatingMusicPlayToggleBtn.title = actionLabel;
+			floatingMusicPlayToggleBtn.setAttribute('aria-label', actionLabel);
+		}
+		if (floatingMusicPrevBtn) {
+			floatingMusicPrevBtn.disabled = state.filteredSongs.length === 0;
+		}
+		if (floatingMusicNextBtn) {
+			floatingMusicNextBtn.disabled = state.filteredSongs.length === 0;
+		}
 	}
 
 	function updateProgress() {
@@ -153,7 +350,6 @@
 	function updateModeButtons() {
 		const meta = MODE_META[state.mode] || MODE_META.list;
 		if (modeIcon) modeIcon.src = meta.icon;
-		if (modeText) modeText.textContent = meta.label;
 		if (modeBtn) {
 			modeBtn.title = meta.label;
 			modeBtn.setAttribute('aria-label', `切换播放模式，当前：${meta.label}`);
@@ -315,6 +511,7 @@
 		audio.dataset.songId = song.id;
 		audio.loop = state.mode === 'single';
 		audio.currentTime = 0;
+		applyVolumePreference();
 		updatePlayerHeader();
 		renderMusicList();
 
@@ -349,6 +546,10 @@
 		}
 		audio.pause();
 		updatePlayerHeader();
+	}
+
+	function togglePlaybackFromFloating() {
+		togglePlayback();
 	}
 
 	function cyclePlayMode() {
@@ -473,8 +674,32 @@
 			nextBtn.addEventListener('click', playNextSong);
 		}
 
+		if (floatingMusicPrevBtn) {
+			floatingMusicPrevBtn.addEventListener('click', playPreviousSong);
+		}
+
+		if (floatingMusicPlayToggleBtn) {
+			floatingMusicPlayToggleBtn.addEventListener('click', togglePlaybackFromFloating);
+		}
+
+		if (floatingMusicNextBtn) {
+			floatingMusicNextBtn.addEventListener('click', playNextSong);
+		}
+
 		if (modeBtn) {
 			modeBtn.addEventListener('click', cyclePlayMode);
+		}
+
+		if (volumeBtn) {
+			volumeBtn.addEventListener('click', toggleVolume);
+		}
+
+		if (volumeSlider) {
+			volumeSlider.addEventListener('input', handleVolumeInput);
+		}
+
+		if (closeWidgetBtn) {
+			closeWidgetBtn.addEventListener('click', closeMusicWidget);
 		}
 
 		if (musicProgressTrack) {
@@ -488,6 +713,7 @@
 		if (audio) {
 			audio.addEventListener('timeupdate', updateProgress);
 			audio.addEventListener('loadedmetadata', updateProgress);
+			audio.addEventListener('volumechange', handleVolumeChange);
 			audio.addEventListener('play', function() {
 				updatePlayerHeader();
 			});
@@ -495,16 +721,36 @@
 				updatePlayerHeader();
 			});
 			audio.addEventListener('ended', handleEnded);
+			loadVolumePreference();
+			applyVolumePreference();
+			updateVolumeButton();
 			audio.addEventListener('error', function() {
 				updatePlayerHeader();
 			});
 		}
+
+		if (musicPage) {
+			const observer = new MutationObserver(function() {
+				updatePlayerHeader();
+			});
+			observer.observe(musicPage, { attributes: true, attributeFilter: ['style'] });
+		}
+
+		window.addEventListener('keydown', function(event) {
+			if (event.key === 'Escape' && isMusicPageVisible()) {
+				closeMusicWidget();
+			}
+		});
 
 		updateModeButtons();
 		updateCounts();
 		updatePlayerHeader();
 		loadMusicLibrary();
 	}
+
+	window.openMusicWidget = openMusicWidget;
+	window.closeMusicWidget = closeMusicWidget;
+	window.toggleMusicWidget = toggleMusicWidget;
 
 	document.addEventListener('DOMContentLoaded', initMusicPage);
 	if (document.readyState !== 'loading') {

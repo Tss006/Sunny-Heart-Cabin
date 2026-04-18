@@ -100,6 +100,7 @@ public class UserController {
             Map<String, Object> map = new HashMap<>();
             map.put("userId", counselor.getId());
             map.put("username", counselor.getUsername());
+            map.put("role", counselor.getRole() == null ? "counselor" : counselor.getRole());
             String token = JwtUtil.createToken(map);
 
             Map<String, Object> result = new HashMap<>();
@@ -119,6 +120,7 @@ public class UserController {
         Map<String, Object> map = new HashMap<>();
         map.put("userId", dbUser.getId());
         map.put("username", dbUser.getUsername());
+        map.put("role", dbUser.getRole() == null ? "user" : dbUser.getRole());
         String token = JwtUtil.createToken(map);
 
         Map<String, Object> result = new HashMap<>();

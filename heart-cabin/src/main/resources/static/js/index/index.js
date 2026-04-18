@@ -5,48 +5,65 @@ if (!localStorage.getItem('isLogin')) {
 }
 
 function hideAllPages() {
-	document.getElementById('home-content').style.display = 'none';
-	document.getElementById('user-content').style.display = 'none';
-	document.getElementById('chat-content').style.display = 'none';
-	document.getElementById('counselor-content').style.display = 'none';
-	document.getElementById('mood-content').style.display = 'none';
-	document.getElementById('test-content').style.display = 'none';
-	document.getElementById('music-content').style.display = 'none';
+	if (typeof window.closeTestWidget === 'function') {
+		window.closeTestWidget();
+	}
+	if (typeof window.closeMusicWidget === 'function') {
+		window.closeMusicWidget();
+	}
+	if (typeof window.closeHomeMessageWidget === 'function') {
+		window.closeHomeMessageWidget();
+	}
+	if (typeof window.closeMoodWidget === 'function') {
+		window.closeMoodWidget();
+	}
+	if (typeof window.closeAiChatWidget === 'function') {
+		window.closeAiChatWidget();
+	}
+	['home-content', 'mood-content', 'test-content', 'music-content'].forEach(function(id) {
+		const element = document.getElementById(id);
+		if (element) {
+			element.style.display = 'none';
+		}
+	});
 }
 
 function loadHomePage() {
-	const quoteText = document.getElementById('homeQuoteText');
-	const quoteAuthor = document.getElementById('homeQuoteAuthor');
+	return;
+}
 
-	if (quoteText) {
-		quoteText.textContent = '正在从数据库加载今日名言...';
+function goHomePage(page) {
+	if (page === 'mood' && typeof openMoodWidget === 'function') {
+		openMoodWidget();
+		return;
 	}
-	if (quoteAuthor) {
-		quoteAuthor.textContent = '-';
-	}
-
-	axios.get('/quote/random').then(function(res) {
-		if (res && res.data && res.data.code === 200 && res.data.data) {
-			const quote = res.data.data;
-			if (quoteText) {
-				quoteText.textContent = quote.content || '让情绪先被看见，再慢慢变好。';
-			}
-			if (quoteAuthor) {
-				quoteAuthor.textContent = quote.author ? '—— ' + quote.author : '—— 佚名';
-			}
+	if (page === 'message') {
+		if (typeof toggleHomeMessageWidget === 'function') {
+			toggleHomeMessageWidget();
 			return;
 		}
-		throw new Error('quote load failed');
-	}).catch(function() {
-		if (quoteText) {
-			quoteText.textContent = '你无法阻止风来，但可以调整帆。';
+	}
+	if (page === 'test') {
+		if (typeof toggleTestWidget === 'function') {
+			toggleTestWidget();
+			return;
 		}
-		if (quoteAuthor) {
-			quoteAuthor.textContent = '—— 佚名';
+	}
+	if (page === 'music') {
+		if (typeof toggleMusicWidget === 'function') {
+			toggleMusicWidget();
+			return;
 		}
-	}).finally(function() {
-		loadHomeMessages();
-	});
+	}
+	if (page === 'user') {
+		location.href = 'user.html';
+		return;
+	}
+	if (page === 'counselor') {
+		location.href = 'consult.html';
+		return;
+	}
+	showPage(page);
 }
 
 function getStoredUser() {
@@ -73,6 +90,54 @@ function getCurrentUserId() {
 function getCurrentUserName() {
 	const account = getStoredUser();
 	return account.nickname || account.name || account.username || '心晴用户';
+}
+
+function isHomeMessageWidgetVisible() {
+	const homeMessageWidget = document.getElementById('homeMessageWidget');
+	return !!(homeMessageWidget && homeMessageWidget.style.display !== 'none' && homeMessageWidget.style.display !== '');
+}
+
+function openHomeMessageWidget() {
+	const homeMessageWidget = document.getElementById('homeMessageWidget');
+	if (!homeMessageWidget) {
+		return;
+	}
+	if (typeof window.closeTestWidget === 'function') {
+		window.closeTestWidget();
+	}
+	if (typeof window.closeMusicWidget === 'function') {
+		window.closeMusicWidget();
+	}
+	if (typeof window.closeMoodWidget === 'function') {
+		window.closeMoodWidget();
+	}
+	if (typeof window.closeAiChatWidget === 'function') {
+		window.closeAiChatWidget();
+	}
+	homeMessageWidget.style.display = 'flex';
+	document.body.classList.add('widget-modal-open');
+	loadHomeMessages();
+	const homeMessageInput = document.getElementById('homeMessageInput');
+	if (homeMessageInput) {
+		homeMessageInput.focus();
+	}
+}
+
+function closeHomeMessageWidget() {
+	const homeMessageWidget = document.getElementById('homeMessageWidget');
+	if (!homeMessageWidget) {
+		return;
+	}
+	homeMessageWidget.style.display = 'none';
+	document.body.classList.remove('widget-modal-open');
+}
+
+function toggleHomeMessageWidget() {
+	if (isHomeMessageWidgetVisible()) {
+		closeHomeMessageWidget();
+	} else {
+		openHomeMessageWidget();
+	}
 }
 
 function renderHomeMessages(messages) {
@@ -178,22 +243,19 @@ function submitHomeMessage(event) {
 	});
 }
 
-function updateActiveLink(link) {
-	var links = document.querySelectorAll('.sidebar-menu a');
-	links.forEach(function(item) {
-		item.classList.remove('active');
-	});
-	if (link) {
-		link.classList.add('active');
+function showPage(page) {
+	if (page === 'test' && typeof openTestWidget === 'function') {
+		openTestWidget();
+		return;
 	}
-}
-
-function showPage(page, link) {
-	const currentPage = document.querySelector('.content > div:not([style*="display: none"])');
-	if (currentPage && currentPage.id === 'chat-content' && page !== 'chat') {
-		if (typeof summarizeAndShowSession === 'function') summarizeAndShowSession();
+	if (page === 'music' && typeof openMusicWidget === 'function') {
+		openMusicWidget();
+		return;
 	}
-
+	if (page === 'message' && typeof openHomeMessageWidget === 'function') {
+		openHomeMessageWidget();
+		return;
+	}
 	hideAllPages();
 
 	const token = localStorage.getItem('token');
@@ -207,14 +269,9 @@ function showPage(page, link) {
 	if (selectedPage.id === 'user-content' && typeof loadUserProfile === 'function') {
 		loadUserProfile(token);
 	}
-	if (selectedPage.id === 'chat-content') {
-		if (typeof startNewChatSession === 'function') startNewChatSession();
-	}
 	if (selectedPage.id === 'counselor-content' && typeof loadCounselors === 'function') {
 		loadCounselors();
 	}
-
-	updateActiveLink(link);
 }
 
 function logout() {
@@ -230,25 +287,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		logoutBtn.onclick = logout;
 	}
 
-	const newChatBtn = document.getElementById('newChatBtn');
-	if (newChatBtn) {
-		newChatBtn.addEventListener('click', function() {
-			const chatHistory = document.getElementById('chatHistory');
-			let hasMsg = false;
-			if (chatHistory) {
-				const msgs = chatHistory.querySelectorAll('.chat-message');
-				msgs.forEach(function(msg) {
-					const content = msg.querySelector('.bubble')?.innerText || '';
-					if (content.trim() !== '') hasMsg = true;
-				});
-			}
-			if (hasMsg && typeof summarizeAndShowSession === 'function') {
-				summarizeAndShowSession();
-			}
-			if (typeof startNewChatSession === 'function') startNewChatSession();
-		});
-	}
-
 	const homeMessageForm = document.getElementById('homeMessageForm');
 	if (homeMessageForm) {
 		homeMessageForm.addEventListener('submit', submitHomeMessage);
@@ -259,7 +297,16 @@ document.addEventListener('DOMContentLoaded', function() {
 		homeMessageRefresh.addEventListener('click', loadHomeMessages);
 	}
 
+	const closeHomeMessageWidgetBtn = document.getElementById('closeHomeMessageWidgetBtn');
+	if (closeHomeMessageWidgetBtn) {
+		closeHomeMessageWidgetBtn.addEventListener('click', closeHomeMessageWidget);
+	}
+
 	if (document.getElementById('home-content')) {
 		loadHomePage();
 	}
 });
+
+window.openHomeMessageWidget = openHomeMessageWidget;
+window.closeHomeMessageWidget = closeHomeMessageWidget;
+window.toggleHomeMessageWidget = toggleHomeMessageWidget;

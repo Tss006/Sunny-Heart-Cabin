@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">心晴小屋手机桥接</string>
+    <string name="bridge_title">小米运动健康桥接</string>
+    <string name="bridge_subtitle">从 Health Connect 读取今天的心率、睡眠和步数，并上传到心晴小屋。</string>
+    <string name="health_check_title">Health Connect 状态</string>
+    <string name="config_title">桥接配置</string>
+    <string name="status_title">同步日志</string>
+</resources>

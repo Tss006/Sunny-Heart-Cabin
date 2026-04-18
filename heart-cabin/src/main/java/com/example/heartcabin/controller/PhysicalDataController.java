@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -24,6 +25,12 @@ public class PhysicalDataController {
     // 新增生理数据（手环上传）
     @PostMapping("/add")
     public Result<?> add(@RequestBody PhysicalData data) {
+        if (data.getRecordDate() == null || data.getRecordDate().trim().isEmpty()) {
+            data.setRecordDate(LocalDate.now().toString());
+        }
+        if (data.getDataSource() == null || data.getDataSource().trim().isEmpty()) {
+            data.setDataSource("manual");
+        }
         boolean ok = physicalDataService.add(data);
         return ok ? Result.success("上传成功", null) : Result.fail("上传失败");
     }

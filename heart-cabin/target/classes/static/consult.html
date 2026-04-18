@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心晴小屋 - 真人咨询</title>
+  <link rel="stylesheet" href="css/index/module-page.css">
+  <link rel="stylesheet" href="css/index/counselor.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="module-page consult-page">
+  <div class="module-shell">
+    <header class="module-topbar">
+      <div class="module-topbar-copy">
+        <span class="module-topbar-kicker">真人咨询 · 独立页面</span>
+        <h1>把倾诉放到单独的空间里</h1>
+        <p>从咨询师列表里选择一位合适的人，查看资料并开始一对一交流。</p>
+      </div>
+      <div class="module-topbar-actions">
+        <a class="module-nav-btn secondary" href="index.html">返回首页</a>
+        <a class="module-nav-btn primary" href="user.html">个人中心</a>
+        <button type="button" id="logout" class="module-nav-btn logout">退出登录</button>
+      </div>
+    </header>
+
+    <main id="counselor-content">
+      <div class="counselor-page">
+        <section class="counselor-hero">
+          <div class="counselor-hero-copy">
+            <div class="counselor-kicker">真人咨询</div>
+            <h1>选择一位咨询师，开始一对一倾诉</h1>
+            <p>咨询师列表会直接从数据库读取，点击左侧卡片即可查看资料并在右侧发起咨询。</p>
+            <div class="counselor-meta">
+              <span id="counselorTotalCount">0 位咨询师</span>
+              <span id="counselorOnlineCount">0 位在线</span>
+              <span>支持即时切换咨询师</span>
+            </div>
+          </div>
+          <div class="counselor-hero-orbit" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </section>
+
+        <div class="counselor-layout">
+          <aside class="counselor-panel counselor-list-panel">
+            <div class="counselor-panel-header">
+              <div>
+                <h2>咨询师列表</h2>
+                <p>从数据库动态加载</p>
+              </div>
+              <span class="counselor-list-badge" id="counselorListBadge">等待加载</span>
+            </div>
+            <div class="counselor-list" id="counselorList"></div>
+          </aside>
+
+          <section class="counselor-panel counselor-detail-panel">
+            <div class="counselor-detail-empty" id="counselorEmptyState">请选择一位咨询师查看资料并开始咨询</div>
+
+            <div class="counselor-detail-card" id="counselorDetailCard" style="display:none;">
+              <div class="counselor-detail-top">
+                <img id="counselorAvatar" class="counselor-avatar" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="咨询师头像">
+                <div class="counselor-detail-copy">
+                  <div class="counselor-detail-kicker" id="counselorStatusText">待选择</div>
+                  <h3 id="counselorName">-</h3>
+                  <p id="counselorTitle">-</p>
+                </div>
+              </div>
+
+              <p class="counselor-signature" id="counselorSignature"></p>
+
+              <div class="counselor-detail-grid">
+                <div class="counselor-detail-item">
+                  <span>用户名</span>
+                  <strong id="counselorUsername">-</strong>
+                </div>
+                <div class="counselor-detail-item">
+                  <span>年龄 / 性别</span>
+                  <strong id="counselorAgeGender">-</strong>
+                </div>
+                <div class="counselor-detail-item">
+                  <span>手机号</span>
+                  <strong id="counselorPhone">-</strong>
+                </div>
+                <div class="counselor-detail-item">
+                  <span>注册时间</span>
+                  <strong id="counselorCreateTime">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="counselor-chat-card">
+              <div class="counselor-chat-header">
+                <div>
+                  <h3 id="counselorChatTitle">咨询记录</h3>
+                  <p id="counselorChatSubtitle">先选择左侧咨询师</p>
+                </div>
+              </div>
+              <div class="counselor-chat-history" id="counselorChatHistory"></div>
+              <div class="counselor-chat-input-bar">
+                <textarea id="counselorChatInput" placeholder="说说你的困扰..." rows="2"></textarea>
+                <button id="counselorSendBtn" type="button">发送咨询</button>
+              </div>
+            </div>
+
+            <div class="counselor-appointment-card">
+              <div class="counselor-panel-header">
+                <div>
+                  <h2>预约咨询</h2>
+                  <p id="appointmentCounselorHint">先从左侧选择一位咨询师</p>
+                </div>
+                <span class="counselor-list-badge" id="appointmentBadge">等待选择</span>
+              </div>
+
+              <div class="appointment-summary-grid">
+                <div class="appointment-summary-item">
+                  <span>当前咨询师</span>
+                  <strong id="appointmentCounselorName">-</strong>
+                </div>
+                <div class="appointment-summary-item">
+                  <span>咨询师状态</span>
+                  <strong id="appointmentCounselorStatus">-</strong>
+                </div>
+              </div>
+
+              <div class="appointment-slot-wrap">
+                <div class="appointment-slot-title">可预约时间段</div>
+                <div class="appointment-slot-list" id="availableTimesList"></div>
+              </div>
+
+              <form class="appointment-form" id="appointmentForm">
+                <label>
+                  <span>预约时间</span>
+                  <input id="appointmentTimeInput" type="datetime-local">
+                </label>
+                <label>
+                  <span>预约原因</span>
+                  <textarea id="appointmentReasonInput" rows="3" placeholder="简单说说你想咨询的问题"></textarea>
+                </label>
+                <div class="appointment-form-tip" id="appointmentTimeTip">请选择咨询师后，从可用时间段里挑选一个时间</div>
+                <div class="appointment-form-actions">
+                  <button type="button" class="appointment-secondary-btn" id="refreshUserAppointmentsBtn">刷新我的预约</button>
+                  <button type="submit" class="appointment-primary-btn">提交预约</button>
+                </div>
+              </form>
+
+              <div class="appointment-list-title">我的预约</div>
+              <div class="appointment-list" id="userAppointmentList"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/index/index.js"></script>
+  <script src="js/appointment-api.js"></script>
+  <script src="js/index/counselor.js"></script>
+</body>
+</html>

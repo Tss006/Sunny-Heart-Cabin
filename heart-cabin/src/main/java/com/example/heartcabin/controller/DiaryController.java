@@ -36,6 +36,9 @@ public class DiaryController {
         if (diary.getMood() == null || diary.getMood().trim().isEmpty()) {
             diary.setMood("");
         }
+        if (diary.getWeather() == null || diary.getWeather().trim().isEmpty()) {
+            diary.setWeather("");
+        }
         diary.setCreate_time(java.time.LocalDateTime.now()); // 设置创建时间
         diary.setDiary_id(UUID.randomUUID().toString()); // 生成唯一 diary_id
         boolean ok = diaryService.addDiary(diary);
@@ -54,8 +57,13 @@ public class DiaryController {
 
     // 查询我的日记
     @GetMapping("/list")
-    public Result<List<Diary>> list(@RequestParam Long user_id) {
-        List<Diary> list = diaryService.getList(user_id);
+    public Result<List<Diary>> list(@RequestParam(value = "user_id", required = false) Long user_id,
+                                    @RequestParam(value = "userId", required = false) Long userId) {
+        Long resolvedUserId = user_id != null ? user_id : userId;
+        if (resolvedUserId == null) {
+            return Result.fail("用户信息缺失，请重新登录");
+        }
+        List<Diary> list = diaryService.getList(resolvedUserId);
         return Result.success("查询成功", list);
     }
 
@@ -72,8 +80,14 @@ public class DiaryController {
 
     // 删除日记
     @PostMapping("/delete")
-    public Result<?> delete(@RequestParam Long id, @RequestParam Long user_id) {
-        boolean ok = diaryService.delete(id, user_id);
+    public Result<?> delete(@RequestParam Long id,
+                            @RequestParam(value = "user_id", required = false) Long user_id,
+                            @RequestParam(value = "userId", required = false) Long userId) {
+        Long resolvedUserId = user_id != null ? user_id : userId;
+        if (resolvedUserId == null) {
+            return Result.fail("用户信息缺失，请重新登录");
+        }
+        boolean ok = diaryService.delete(id, resolvedUserId);
         if (ok) {
             return Result.success("删除成功", null);
         } else {

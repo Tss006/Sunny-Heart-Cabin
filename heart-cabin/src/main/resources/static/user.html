@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心晴小屋 - 个人中心</title>
+  <link rel="stylesheet" href="css/index/module-page.css">
+  <link rel="stylesheet" href="css/index/user.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="module-page user-page">
+  <div class="module-shell">
+    <header class="module-topbar">
+      <div class="module-topbar-copy">
+        <span class="module-topbar-kicker">个人中心 · 独立页面</span>
+        <h1>把资料、报告和设置集中在这里</h1>
+        <p>查看个人资料、历史测评和账号设置，随时返回首页或前往真人咨询。</p>
+      </div>
+      <div class="module-topbar-actions">
+        <a class="module-nav-btn secondary" href="index.html">返回首页</a>
+        <a class="module-nav-btn primary" href="consult.html">真人咨询</a>
+        <button type="button" id="logout" class="module-nav-btn logout">退出登录</button>
+      </div>
+    </header>
+
+    <main id="user-content">
+      <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+      <div class="user-container">
+        <div class="welcome-header">
+          <div class="avatar" onclick="changeAvatar()">
+            <img src="images/avatar-default.png" class="avatar_img" id="avatarImg">
+          </div>
+          <div class="welcome-text">
+            <h1>欢迎回来，心晴用户！</h1>
+            <p>今天又是美好的一天，继续守护你的心灵健康</p>
+          </div>
+        </div>
+
+        <div class="user-profile-card">
+          <div class="profile-header">
+            <h2>📋 个人资料</h2>
+          </div>
+          <div class="profile-info">
+            <div class="info-item">
+              <span class="label">昵称：</span>
+              <span class="value" id="nickname">心晴小屋用户</span>
+            </div>
+            <div class="info-item">
+              <span class="label">年龄：</span>
+              <span class="value" id="age">25</span>
+            </div>
+            <div class="info-item">
+              <span class="label">性别：</span>
+              <span class="value" id="gender">女</span>
+            </div>
+            <div class="info-item">
+              <span class="label">个性签名：</span>
+              <span class="value" id="signature">守护心灵健康，一起前行</span>
+            </div>
+            <div class="info-item">
+              <span class="label">注册时间：</span>
+              <span class="value">2024年1月1日</span>
+            </div>
+            <div class="info-item">
+              <span class="label">会员等级：</span>
+              <span class="value">普通会员</span>
+            </div>
+            <div class="info-item">
+              <span class="label">当前状态：</span>
+              <span class="value">已登录</span>
+            </div>
+          </div>
+        </div>
+        <div class="edit-profile-section">
+          <button id="editProfileBtn" class="edit-btn">编辑资料</button>
+        </div>
+
+        <div class="stats-panel">
+          <h2>📊 我的统计</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📝</div>
+              <div class="stat-content">
+                <h3 id="diaryCount">0</h3>
+                <p>日记条数</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🧠</div>
+              <div class="stat-content">
+                <h3 id="testCount">0</h3>
+                <p>测试次数</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🎵</div>
+              <div class="stat-content">
+                <h3 id="musicCount">0</h3>
+                <p>音乐播放</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="features-section">
+          <h2>🚀 功能中心</h2>
+          <div class="features-grid">
+            <div class="feature-item" id="myReportBtn" role="button" tabindex="0">
+              <div class="feature-icon">📊</div>
+              <h4>我的报告</h4>
+              <p>查看历史测评结果</p>
+            </div>
+            <div class="feature-item" id="settingBtn" role="button" tabindex="0">
+              <div class="feature-icon">⚙️</div>
+              <h4>设置</h4>
+              <p>账号与隐私设置</p>
+            </div>
+            <div class="feature-item bluetooth-feature" id="bluetoothBtn" role="button" tabindex="0">
+              <div class="feature-icon">📶</div>
+              <h4>蓝牙设备</h4>
+              <p>连接标准心率设备并同步到报告</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-modal" id="testReportModal" style="display:none;">
+          <div class="report-modal-backdrop" id="testReportBackdrop"></div>
+          <div class="report-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="testReportTitle">
+            <button type="button" class="report-modal-close" id="testReportClose">×</button>
+            <div class="report-modal-header">
+              <h3 id="testReportTitle">我的报告</h3>
+              <p>按时间倒序展示最近的测评记录</p>
+            </div>
+            <div class="report-modal-empty" id="testReportEmpty" style="display:none;">暂无历史测评记录</div>
+            <div class="report-list" id="testReportList"></div>
+          </div>
+        </div>
+
+        <div class="settings-modal" id="settingsModal" style="display:none;">
+          <div class="settings-modal-backdrop" id="settingsBackdrop"></div>
+          <div class="settings-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <button type="button" class="settings-modal-close" id="settingsClose">×</button>
+            <div class="settings-modal-header">
+              <div>
+                <h3 id="settingsTitle">设置</h3>
+                <p>修改密码、绑定手机号、切换主题和导出个人数据</p>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <section class="settings-section">
+                <h4>修改密码</h4>
+                <div class="settings-field-list">
+                  <input id="settingsOldPasswordInput" class="settings-input" type="password" placeholder="当前密码" autocomplete="current-password" />
+                  <input id="settingsNewPasswordInput" class="settings-input" type="password" placeholder="新密码（不少于 6 位）" autocomplete="new-password" />
+                  <input id="settingsConfirmPasswordInput" class="settings-input" type="password" placeholder="再次输入新密码" autocomplete="new-password" />
+                </div>
+                <button type="button" class="settings-action-btn" id="settingsSavePasswordBtn">保存密码</button>
+              </section>
+
+              <section class="settings-section">
+                <h4>绑定手机号</h4>
+                <div class="settings-field-list">
+                  <input id="settingsPhoneInput" class="settings-input" type="tel" placeholder="请输入手机号" autocomplete="tel" />
+                </div>
+                <button type="button" class="settings-action-btn" id="settingsSavePhoneBtn">保存手机号</button>
+              </section>
+
+              <section class="settings-section">
+                <h4>浅色 / 深色主题</h4>
+                <div class="settings-theme-switch" role="group" aria-label="主题切换">
+                  <button type="button" class="settings-theme-btn active" id="settingsThemeLightBtn">浅色</button>
+                  <button type="button" class="settings-theme-btn" id="settingsThemeDarkBtn">深色</button>
+                </div>
+              </section>
+
+              <section class="settings-section settings-section-export">
+                <h4>数据导出</h4>
+                <p>导出个人资料、日记记录和测试历史为 JSON 文件。</p>
+                <button type="button" class="settings-action-btn secondary" id="settingsExportBtn">导出数据</button>
+              </section>
+            </div>
+
+            <div class="settings-status" id="settingsStatus" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="bluetooth-modal" id="bluetoothModal" style="display:none;">
+          <div class="bluetooth-modal-backdrop" id="bluetoothBackdrop"></div>
+          <div class="bluetooth-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bluetoothTitle">
+            <button type="button" class="bluetooth-modal-close" id="bluetoothClose">×</button>
+            <div class="bluetooth-modal-header">
+              <div>
+                <h3 id="bluetoothTitle">蓝牙设备</h3>
+                <p>连接标准 BLE 心率设备，实时查看心率并同步到我的报告</p>
+              </div>
+              <div class="bluetooth-status-chip" id="bluetoothStatusChip">未连接</div>
+            </div>
+
+            <div class="bluetooth-grid">
+              <section class="bluetooth-section">
+                <h4>连接控制</h4>
+                  <p id="bluetoothSupportHint">浏览器将通过 Web Bluetooth 连接心率设备。若是小米手环，请先确保它处于可发现状态，且没有被手机 App 持续占用。</p>
+                <div class="bluetooth-action-row">
+                    <button type="button" class="bluetooth-action-btn" id="bluetoothConnectBtn">标准搜索</button>
+                    <button type="button" class="bluetooth-action-btn secondary" id="bluetoothCompatConnectBtn">兼容搜索</button>
+                  <button type="button" class="bluetooth-action-btn secondary" id="bluetoothDisconnectBtn" disabled>断开连接</button>
+                </div>
+                <button type="button" class="bluetooth-action-btn ghost" id="bluetoothSyncBtn" disabled>立即同步当前心率</button>
+              </section>
+
+              <section class="bluetooth-section bluetooth-section-summary">
+                <h4>实时状态</h4>
+                <div class="bluetooth-metric-list">
+                  <div class="bluetooth-metric">
+                    <span>设备名称</span>
+                    <strong id="bluetoothDeviceName">未连接</strong>
+                  </div>
+                  <div class="bluetooth-metric">
+                    <span>当前心率</span>
+                    <strong id="bluetoothHeartRateValue">--</strong>
+                  </div>
+                  <div class="bluetooth-metric">
+                    <span>最后同步</span>
+                    <strong id="bluetoothLastSyncValue">--</strong>
+                  </div>
+                  <div class="bluetooth-metric">
+                    <span>记录日期</span>
+                    <strong id="bluetoothRecordDateValue">--</strong>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="bluetooth-log" id="bluetoothLog" aria-live="polite">等待连接心率设备。</div>
+            <p class="bluetooth-note">说明：浏览器蓝牙主要支持标准 BLE 心率设备，睡眠数据通常需要厂商云同步或手机桥接。</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/index/index.js"></script>
+  <script src="js/index/user.js"></script>
+</body>
+</html>

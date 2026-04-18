@@ -21,10 +21,23 @@
 	const counselorChatHistory = document.getElementById('counselorChatHistory');
 	const counselorChatInput = document.getElementById('counselorChatInput');
 	const counselorSendBtn = document.getElementById('counselorSendBtn');
+	const appointmentBadge = document.getElementById('appointmentBadge');
+	const appointmentCounselorHint = document.getElementById('appointmentCounselorHint');
+	const appointmentCounselorName = document.getElementById('appointmentCounselorName');
+	const appointmentCounselorStatus = document.getElementById('appointmentCounselorStatus');
+	const availableTimesList = document.getElementById('availableTimesList');
+	const appointmentTimeInput = document.getElementById('appointmentTimeInput');
+	const appointmentReasonInput = document.getElementById('appointmentReasonInput');
+	const appointmentTimeTip = document.getElementById('appointmentTimeTip');
+	const appointmentForm = document.getElementById('appointmentForm');
+	const userAppointmentList = document.getElementById('userAppointmentList');
+	const refreshUserAppointmentsBtn = document.getElementById('refreshUserAppointmentsBtn');
 
 	let counselorCache = [];
 	let selectedCounselor = null;
 	let hasLoaded = false;
+	let availableTimeCache = [];
+	let myAppointmentCache = [];
 
 	function escapeHtml(str) {
 		return String(str || '').replace(/[&<>"']/g, function(c) {
@@ -64,6 +77,16 @@
 		return value || '未知';
 	}
 
+	function formatAppointmentStatus(value) {
+		const map = {
+			pending: '待确认',
+			confirmed: '已确认',
+			completed: '已完成',
+			cancelled: '已取消'
+		};
+		return map[value] || value || '未知';
+	}
+
 	function formatAge(value) {
 		return value == null || value === '' ? '未知' : String(value);
 	}
@@ -80,6 +103,294 @@
 		if (counselorChatHistory) {
 			counselorChatHistory.innerHTML = '';
 		}
+	}
+
+	function clearAppointmentSelection(message) {
+		availableTimeCache = [];
+		if (availableTimesList) {
+			availableTimesList.innerHTML = '';
+			const empty = document.createElement('div');
+			empty.className = 'appointment-slot-empty';
+			empty.textContent = message || '请先选择一位咨询师';
+			availableTimesList.appendChild(empty);
+		}
+		if (appointmentBadge) {
+			appointmentBadge.textContent = '等待选择';
+		}
+		if (appointmentCounselorHint) {
+			appointmentCounselorHint.textContent = message || '请先选择一位咨询师';
+		}
+		if (appointmentCounselorName) {
+			appointmentCounselorName.textContent = '-';
+		}
+		if (appointmentCounselorStatus) {
+			appointmentCounselorStatus.textContent = '-';
+		}
+		if (appointmentTimeTip) {
+			appointmentTimeTip.textContent = message || '请先选择一位咨询师';
+			appointmentTimeTip.classList.remove('error');
+		}
+		if (appointmentTimeInput) {
+			appointmentTimeInput.value = '';
+		}
+		if (appointmentReasonInput) {
+			appointmentReasonInput.value = '';
+		}
+	}
+
+	function formatDateTimeLocal(date) {
+		const pad = function(value) {
+			return String(value).padStart(2, '0');
+		};
+		return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+	}
+
+	function getNextSlotDateTime(dayOfWeek, startTime) {
+		const dayIndexMap = {
+			Monday: 1,
+			Tuesday: 2,
+			Wednesday: 3,
+			Thursday: 4,
+			Friday: 5,
+			Saturday: 6,
+			Sunday: 0
+		};
+		const targetDayIndex = dayIndexMap[dayOfWeek];
+		if (targetDayIndex == null) {
+			return '';
+		}
+		const now = new Date();
+		const currentDayIndex = now.getDay();
+		let delta = (targetDayIndex - currentDayIndex + 7) % 7;
+		const candidate = new Date(now);
+		candidate.setDate(now.getDate() + delta);
+		const parts = String(startTime || '09:00:00').split(':');
+		candidate.setHours(Number(parts[0] || 0), Number(parts[1] || 0), Number(parts[2] || 0), 0);
+		if (candidate.getTime() <= now.getTime()) {
+			candidate.setDate(candidate.getDate() + 7);
+		}
+		return formatDateTimeLocal(candidate);
+	}
+
+	function loadMyAppointments() {
+		const api = window.heartCabinAppointmentApi || {};
+		if (typeof api.getUserAppointments !== 'function') {
+			return Promise.resolve([]);
+		}
+		return api.getUserAppointments().then(function(res) {
+			const list = res && res.data && res.data.code === 200 && Array.isArray(res.data.data) ? res.data.data : [];
+			myAppointmentCache = list;
+			renderMyAppointments(list);
+			return list;
+		}).catch(function() {
+			myAppointmentCache = [];
+			renderMyAppointments([]);
+			return [];
+		});
+	}
+
+	function renderMyAppointments(list) {
+		if (!userAppointmentList) {
+			return;
+		}
+		userAppointmentList.innerHTML = '';
+		const appointments = Array.isArray(list) ? list : [];
+		if (!appointments.length) {
+			const empty = document.createElement('div');
+			empty.className = 'appointment-empty-state';
+			empty.textContent = '暂无预约记录';
+			userAppointmentList.appendChild(empty);
+			return;
+		}
+		appointments.forEach(function(item) {
+			const card = document.createElement('article');
+			card.className = 'user-appointment-item';
+			card.innerHTML = '\n\t\t\t<div class="user-appointment-head">\n\t\t\t\t<div>\n\t\t\t\t\t<h3>' + escapeHtml(item.counselorName || item.counselor_name || '咨询师') + '</h3>\n\t\t\t\t\t<p>' + escapeHtml(formatTime(item.appointmentTime || item.appointment_time)) + '</p>\n\t\t\t\t</div>\n\t\t\t\t<span class="user-appointment-status status-' + escapeHtml(item.status || 'pending') + '">' + escapeHtml(formatAppointmentStatus(item.status)) + '</span>\n\t\t\t</div>\n\t\t\t<div class="user-appointment-reason">' + escapeHtml(item.reason || '未填写预约原因') + '</div>\n\t\t';
+			userAppointmentList.appendChild(card);
+		});
+	}
+
+	function renderAvailableTimes(list) {
+		if (!availableTimesList) {
+			return;
+		}
+		availableTimesList.innerHTML = '';
+		const slots = Array.isArray(list) ? list : [];
+		availableTimeCache = slots;
+		if (!slots.length) {
+			const empty = document.createElement('div');
+			empty.className = 'appointment-slot-empty';
+			empty.textContent = '当前咨询师暂无可预约时间';
+			availableTimesList.appendChild(empty);
+			if (appointmentTimeTip) {
+				appointmentTimeTip.textContent = '该咨询师暂无可预约时间段';
+			}
+			return;
+		}
+
+		slots.forEach(function(slot) {
+			const chip = document.createElement('button');
+			chip.type = 'button';
+			chip.className = 'appointment-slot-chip' + (slot.isAvailable ? '' : ' disabled');
+			chip.disabled = !slot.isAvailable;
+			chip.innerHTML = '<span>' + escapeHtml((slot.dayOfWeek || slot.day_of_week || '')) + '</span><strong>' + escapeHtml((slot.startTime || slot.start_time || '--:--').slice(0, 5)) + ' - ' + escapeHtml((slot.endTime || slot.end_time || '--:--').slice(0, 5)) + '</strong><em>' + escapeHtml(slot.isAvailable ? '可预约' : '已停用') + '</em>';
+			chip.addEventListener('click', function() {
+				if (appointmentTimeInput) {
+					appointmentTimeInput.value = getNextSlotDateTime(slot.dayOfWeek || slot.day_of_week, slot.startTime || slot.start_time);
+					appointmentTimeInput.focus();
+				}
+				validateAppointmentTime();
+			});
+			availableTimesList.appendChild(chip);
+		});
+		validateAppointmentTime();
+	}
+
+	function loadAppointmentTimes(counselor) {
+		const api = window.heartCabinAppointmentApi || {};
+		if (!counselor) {
+			clearAppointmentSelection('请先选择一位咨询师');
+			return Promise.resolve([]);
+		}
+		if (appointmentBadge) {
+			appointmentBadge.textContent = '加载中...';
+		}
+		if (appointmentCounselorHint) {
+			appointmentCounselorHint.textContent = '正在加载可预约时间';
+		}
+		if (typeof api.getAvailableTimes !== 'function') {
+			clearAppointmentSelection('预约接口暂不可用');
+			return Promise.resolve([]);
+		}
+		return api.getAvailableTimes(counselor.id).then(function(res) {
+			const slots = res && res.data && res.data.code === 200 && Array.isArray(res.data.data) ? res.data.data : [];
+			if (appointmentBadge) {
+				appointmentBadge.textContent = slots.length ? ('已加载 ' + slots.length + ' 个时段') : '暂无可用时段';
+			}
+			if (appointmentCounselorHint) {
+				appointmentCounselorHint.textContent = slots.length ? '点击时间段可以快速填入预约时间' : '该咨询师暂无可预约时间';
+			}
+			renderAvailableTimes(slots);
+			return slots;
+		}).catch(function() {
+			clearAppointmentSelection('可预约时间加载失败');
+			return [];
+		});
+	}
+
+	function validateAppointmentTime() {
+		if (!appointmentTimeInput || !appointmentTimeTip) {
+			return true;
+		}
+		const value = appointmentTimeInput.value;
+		if (!selectedCounselor) {
+			appointmentTimeTip.textContent = '请先选择一位咨询师';
+			appointmentTimeTip.classList.add('error');
+			return false;
+		}
+		if (!value) {
+			appointmentTimeTip.textContent = '请选择一个具体的预约时间';
+			appointmentTimeTip.classList.remove('error');
+			return false;
+		}
+		const selectedDate = new Date(value);
+		if (Number.isNaN(selectedDate.getTime())) {
+			appointmentTimeTip.textContent = '预约时间格式不正确';
+			appointmentTimeTip.classList.add('error');
+			return false;
+		}
+		const weekDayMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+		const selectedDay = weekDayMap[selectedDate.getDay()];
+		const selectedClock = String(selectedDate.getHours()).padStart(2, '0') + ':' + String(selectedDate.getMinutes()).padStart(2, '0') + ':00';
+		const matched = availableTimeCache.some(function(slot) {
+			if (!slot || !slot.isAvailable) {
+				return false;
+			}
+			const slotDay = slot.dayOfWeek || slot.day_of_week;
+			if (String(slotDay) !== String(selectedDay)) {
+				return false;
+			}
+			const startTime = String(slot.startTime || slot.start_time || '').slice(0, 8);
+			const endTime = String(slot.endTime || slot.end_time || '').slice(0, 8);
+			return selectedClock >= startTime && selectedClock < endTime;
+		});
+		if (!matched) {
+			appointmentTimeTip.textContent = '该时间不在当前咨询师可预约范围内';
+			appointmentTimeTip.classList.add('error');
+			return false;
+		}
+		appointmentTimeTip.textContent = '时间可用，可以提交预约';
+		appointmentTimeTip.classList.remove('error');
+		return true;
+	}
+
+	function submitAppointment(event) {
+		event.preventDefault();
+		const api = window.heartCabinAppointmentApi || {};
+		if (!selectedCounselor) {
+			alert('请先选择一位咨询师');
+			return;
+		}
+		if (!appointmentTimeInput || !appointmentTimeInput.value) {
+			alert('请选择预约时间');
+			return;
+		}
+		if (!validateAppointmentTime()) {
+			alert('预约时间不在可预约范围内');
+			return;
+		}
+		const payload = {
+			counselorId: selectedCounselor.id,
+			appointmentTime: appointmentTimeInput.value,
+			reason: appointmentReasonInput ? appointmentReasonInput.value.trim() : ''
+		};
+		const submitBtn = appointmentForm ? appointmentForm.querySelector('button[type="submit"]') : null;
+		if (submitBtn) {
+			submitBtn.disabled = true;
+		}
+		api.createAppointment(payload).then(function(res) {
+			if (!(res && res.data && res.data.code === 200)) {
+				throw new Error('submit failed');
+			}
+			if (appointmentTimeTip) {
+				appointmentTimeTip.textContent = '预约已提交，等待咨询师确认';
+				appointmentTimeTip.classList.remove('error');
+			}
+			if (appointmentReasonInput) {
+				appointmentReasonInput.value = '';
+			}
+			return loadMyAppointments();
+		}).catch(function(error) {
+			const message = error && error.response && error.response.data && (error.response.data.msg || error.response.data.error) ? (error.response.data.msg || error.response.data.error) : '预约提交失败';
+			if (appointmentTimeTip) {
+				appointmentTimeTip.textContent = message;
+				appointmentTimeTip.classList.add('error');
+			}
+		}).finally(function() {
+			if (submitBtn) {
+				submitBtn.disabled = false;
+			}
+		});
+	}
+
+	function syncAppointmentPanel(counselor) {
+		if (!counselor) {
+			clearAppointmentSelection('请先选择一位咨询师');
+			return;
+		}
+		if (appointmentCounselorName) {
+			appointmentCounselorName.textContent = getDisplayName(counselor);
+		}
+		if (appointmentCounselorStatus) {
+			appointmentCounselorStatus.textContent = formatStatus(counselor.status);
+		}
+		if (appointmentBadge) {
+			appointmentBadge.textContent = '正在加载';
+		}
+		if (appointmentCounselorHint) {
+			appointmentCounselorHint.textContent = '请选择一个可用时间段并提交预约';
+		}
+		loadAppointmentTimes(counselor);
 	}
 
 	function appendMessage(role, content) {
@@ -112,6 +423,7 @@
 			counselorDetailCard.style.display = 'none';
 		}
 		clearChatHistory();
+		clearAppointmentSelection(message || '暂无咨询师数据');
 		selectedCounselor = null;
 	}
 
@@ -201,6 +513,7 @@
 	function selectCounselor(counselor) {
 		selectedCounselor = counselor;
 		renderCounselorDetail(counselor);
+		syncAppointmentPanel(counselor);
 		highlightSelectedCard(counselor && counselor.id);
 		loadHistory(counselor);
 	}
@@ -250,6 +563,7 @@
 		} else {
 			highlightSelectedCard(selectedCounselor.id);
 			renderCounselorDetail(selectedCounselor);
+			syncAppointmentPanel(selectedCounselor);
 		}
 	}
 
@@ -324,6 +638,18 @@
 		});
 	}
 
+	if (appointmentForm) {
+		appointmentForm.addEventListener('submit', submitAppointment);
+	}
+
+	if (appointmentTimeInput) {
+		appointmentTimeInput.addEventListener('input', validateAppointmentTime);
+	}
+
+	if (refreshUserAppointmentsBtn) {
+		refreshUserAppointmentsBtn.addEventListener('click', loadMyAppointments);
+	}
+
 	window.loadCounselors = loadCounselors;
 	window.selectCounselor = selectCounselor;
 
@@ -332,4 +658,6 @@
 	} else {
 		loadCounselors();
 	}
+
+	loadMyAppointments();
 })();

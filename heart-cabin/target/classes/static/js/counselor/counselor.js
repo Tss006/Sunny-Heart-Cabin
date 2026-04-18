@@ -38,6 +38,7 @@
 		document.getElementById('home-content').style.display = 'none';
 		document.getElementById('profile-content').style.display = 'none';
 		document.getElementById('consult-content').style.display = 'none';
+		document.getElementById('appointment-content').style.display = 'none';
 	}
 
 	function updateActiveLink(link) {
@@ -93,6 +94,9 @@
 		}
 		if (page === 'consult' && typeof window.initCounselorConsult === 'function') {
 			window.initCounselorConsult();
+		}
+		if (page === 'appointment' && typeof window.initCounselorAppointment === 'function') {
+			window.initCounselorAppointment();
 		}
 		updateActiveLink(link);
 	}

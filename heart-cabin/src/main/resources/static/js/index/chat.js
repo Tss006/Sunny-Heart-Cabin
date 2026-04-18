@@ -1,197 +1,332 @@
-// chat.js - AI聊天页面脚本
+// chat.js - 悬浮 AI 聊天模块
 
-// 获取DOM元素
 const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 const chatHistory = document.getElementById('chatHistory');
+const chatSessionList = document.getElementById('chatSessionList');
+const chatTitle = document.getElementById('chatTitle');
+const newChatBtn = document.getElementById('newChatBtn');
+const aiChatBubble = document.getElementById('aiChatBubble');
+const aiChatWidget = document.getElementById('aiChatWidget');
+const closeAiChatBtn = document.getElementById('closeAiChatBtn');
 
-let user_id = localStorage.getItem('user_id');
-console.log(user_id);
+let user_id = localStorage.getItem('user_id') || '';
 let chat_id = null;
+let hasInitialized = false;
 
+function ensureUserId() {
+    if (user_id) return user_id;
+    const raw = localStorage.getItem('user');
+    if (!raw) return '';
+    try {
+        const parsed = JSON.parse(raw) || {};
+        user_id = parsed.user_id || parsed.userId || parsed.id || '';
+    } catch (error) {
+        user_id = '';
+    }
+    return user_id;
+}
 
 function generateChatId() {
-    // 生成唯一字符串chat_id，避免大整数精度丢失
     return 'cid_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 8);
 }
 
-function sendMessage() {
-    const user_message = chatInput.value.trim();
-    if (!user_message) return;
-    sendChatBtn.disabled = true;
-    appendMessage('user', user_message);
-    chatInput.value = '';
-    chatInput.focus();
-    axios.get('/ai/chat', {
-        params: {
-            user_id: user_id,
-            chat_id: chat_id,
-            message: user_message
-        }
-    }).then(res => {
-        if (res.data && res.data.code === 200 && res.data.data) {
-            appendMessage('ai', res.data.data.ai_reply);
-        } else {
-            appendMessage('ai', 'AI暂时无法回复，请稍后再试。');
-        }
-    }).catch(() => {
-        appendMessage('ai', 'AI暂时无法回复，请稍后再试。');
-    }).finally(() => {
-        sendChatBtn.disabled = false;
-        scrollToBottom();
+function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, function(c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' })[c];
     });
-    scrollToBottom();
-}
-
-function appendMessage(role, content) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-message' + (role === 'user' ? ' user' : '');
-    msgDiv.innerHTML = `
-        <div class="avatar">${role === 'user' ? '🧑' : '🤖'}</div>
-        <div class="bubble">${escapeHtml(content)}</div>
-    `;
-    chatHistory.appendChild(msgDiv);
 }
 
 function scrollToBottom() {
+    if (!chatHistory) return;
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-function escapeHtml(str) {
-    return str.replace(/[&<>"]'/g, function (c) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'})[c];
-    });
+function appendMessage(role, content) {
+    if (!chatHistory) return;
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message' + (role === 'user' ? ' user' : '');
+    msgDiv.innerHTML =
+        '<div class="avatar">' + (role === 'user' ? '🧑' : '🤖') + '</div>' +
+        '<div class="bubble">' + escapeHtml(content) + '</div>';
+    chatHistory.appendChild(msgDiv);
 }
 
-sendChatBtn.addEventListener('click', sendMessage);
-chatInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
-
-
-// AI问候语只展示，不保存到数据库
 function aiGreet() {
+    if (!chatHistory) return;
     chatHistory.innerHTML = '';
-    // 直接本地展示AI问候语
     appendMessage('ai', '你好！我是心晴小屋AI心理师，有什么可以帮您？');
     scrollToBottom();
 }
 
-
-function startNewChatSession() {
-    if (typeof summarizeAndShowSession === 'function') summarizeAndShowSession();
-    chat_id = generateChatId();
-    // 确保chat_id为字符串
-    chat_id = String(chat_id);
-    chatHistory.innerHTML = '';
-    aiGreet();
-    setTimeout(loadChatSummaries, 500);
-}
-
 function collectHistoryText() {
+    if (!chatHistory) return '';
     const messages = chatHistory.querySelectorAll('.chat-message');
     let text = '';
-    messages.forEach(msg => {
+    messages.forEach(function(msg) {
         const isUser = msg.classList.contains('user');
-        const content = msg.querySelector('.bubble')?.innerText || '';
+        const content = msg.querySelector('.bubble') ? msg.querySelector('.bubble').innerText : '';
         text += (isUser ? '用户：' : 'AI：') + content + '\n';
     });
     return text.trim();
 }
 
+function hasMeaningfulHistory() {
+    const historyText = collectHistoryText();
+    const greetText = 'AI：你好！我是心晴小屋AI心理师，有什么可以帮您？';
+    return !!historyText && historyText.trim() !== greetText;
+}
 
-// 判断数据库是否已有该chat_id的历史总结，若有则直接展示，否则调用AI总结
-// 修正：总结时用当前会话的chat_id（总结前的chat_id），避免用新建的chat_id
+function setActiveSession(chatIdStr) {
+    if (!chatSessionList) return;
+    const items = chatSessionList.querySelectorAll('li');
+    items.forEach(function(li) {
+        li.classList.toggle('active', String(li.getAttribute('data-chatid')) === String(chatIdStr));
+    });
+}
+
+function ensureSessionItem(summary, chatIdVal) {
+    if (!chatSessionList) return;
+    const chatIdStr = String(chatIdVal);
+    const existing = chatSessionList.querySelector('li[data-chatid="' + chatIdStr + '"]');
+    if (existing) {
+        const title = existing.querySelector('.session-title');
+        if (title && summary) title.textContent = summary;
+        setActiveSession(chatIdStr);
+        return;
+    }
+
+    const li = document.createElement('li');
+    li.setAttribute('data-chatid', chatIdStr);
+    li.innerHTML = '<span class="session-title">' + escapeHtml(summary || '未命名会话') + '</span>';
+    li.addEventListener('click', function() {
+        loadHistoryByChatId(chatIdStr);
+    });
+    chatSessionList.insertBefore(li, chatSessionList.firstChild);
+    setActiveSession(chatIdStr);
+}
+
+function sendMessage(messageText) {
+    if (!chatInput || !sendChatBtn) return;
+    const user_message = typeof messageText === 'string' ? messageText.trim() : chatInput.value.trim();
+    if (!user_message) return;
+    const currentUserId = ensureUserId();
+    if (!currentUserId) {
+        appendMessage('ai', '未获取到用户信息，请重新登录后再试。');
+        return;
+    }
+    if (!chat_id) {
+        chat_id = String(generateChatId());
+    }
+
+    sendChatBtn.disabled = true;
+    appendMessage('user', user_message);
+    chatInput.value = '';
+    chatInput.focus();
+
+    axios.get('/ai/chat', {
+        params: {
+            user_id: currentUserId,
+            chat_id: chat_id,
+            message: user_message
+        }
+    }).then(function(res) {
+        if (res.data && res.data.code === 200 && res.data.data) {
+            appendMessage('ai', res.data.data.ai_reply);
+        } else {
+            appendMessage('ai', 'AI暂时无法回复，请稍后再试。');
+        }
+    }).catch(function() {
+        appendMessage('ai', 'AI暂时无法回复，请稍后再试。');
+    }).finally(function() {
+        sendChatBtn.disabled = false;
+        scrollToBottom();
+    });
+
+    scrollToBottom();
+}
 
 function summarizeAndShowSession() {
     const historyText = collectHistoryText();
-    if (!historyText) return;
-    // 判断历史内容是否只包含AI问候语
+    if (!historyText || !chat_id) return;
     const greetText = 'AI：你好！我是心晴小屋AI心理师，有什么可以帮您？';
     if (historyText.trim() === greetText) return;
-    // 记录当前会话id，防止新建会话后chat_id被覆盖
-    const currentChatId = chat_id;
-    // 先查summaries接口，判断是否已存在该chat_id的总结
+
+    const currentUserId = ensureUserId();
+    if (!currentUserId) return;
+    const currentChatId = String(chat_id);
+
     axios.get('/ai/summaries', {
-        params: { user_id: user_id }
-    }).then(res => {
+        params: { user_id: currentUserId }
+    }).then(function(res) {
         if (res.data && res.data.code === 200 && Array.isArray(res.data.data)) {
-            const exist = res.data.data.find(item => String(item.chat_id) === String(currentChatId));
+            const exist = res.data.data.find(function(item) {
+                return String(item.chat_id) === currentChatId;
+            });
             if (exist) {
-                addSessionToSidebar(exist.ai_reply, currentChatId);
+                ensureSessionItem(exist.ai_reply, currentChatId);
                 return;
             }
         }
-        // 不存在则调用AI总结
+
         axios.post('/ai/summary', {
-            user_id: user_id,
+            user_id: currentUserId,
             chat_id: currentChatId,
             historyText: historyText
-        }).then(res2 => {
+        }).then(function(res2) {
             if (res2.data && res2.data.code === 200 && res2.data.data) {
-                addSessionToSidebar(res2.data.data.ai_reply, currentChatId);
+                ensureSessionItem(res2.data.data.ai_reply, currentChatId);
             } else {
-                addSessionToSidebar('AI总结失败', currentChatId);
+                ensureSessionItem('AI总结失败', currentChatId);
             }
-        }).catch(() => {
-            addSessionToSidebar('AI总结失败', currentChatId);
+        }).catch(function() {
+            ensureSessionItem('AI总结失败', currentChatId);
         });
     });
 }
 
-function addSessionToSidebar(summary, chat_id_val) {
-    const sessionList = document.getElementById('chatSessionList');
-    if (!sessionList) return;
-    const li = document.createElement('li');
-    li.setAttribute('data-chatid', chat_id_val);
-    li.innerHTML = `<span class="session-title">${escapeHtml(summary)}</span>`;
-    li.onclick = function() {
-        loadHistoryByChatId(chat_id_val);
-    };
-    sessionList.insertBefore(li, sessionList.firstChild);
-}
-
-
 function loadHistoryByChatId(cid) {
-    // 确保chat_id为字符串
+    const currentUserId = ensureUserId();
+    if (!currentUserId || !chatHistory) return;
     const chatIdStr = String(cid);
+
     axios.get('/ai/historyByChatId', {
         params: {
-            user_id: user_id,
+            user_id: currentUserId,
             chat_id: chatIdStr
         }
-    }).then(res => {
-        if (res.data && res.data.code === 200 && res.data.data) {
-            chatHistory.innerHTML = '';
-            res.data.data.forEach(item => {
-                if(item.user_message && item.user_message !== 'History_Summarize' && item.user_message !== '[历史总结]') appendMessage('user', item.user_message);
-                if(item.ai_reply && item.user_message !== 'History_Summarize' && item.user_message !== '[历史总结]') appendMessage('ai', item.ai_reply);
-            });
-            chat_id = chatIdStr;
+    }).then(function(res) {
+        if (!(res.data && res.data.code === 200 && Array.isArray(res.data.data))) {
+            return;
+        }
+        chatHistory.innerHTML = '';
+        res.data.data.forEach(function(item) {
+            if (item.user_message && item.user_message !== 'History_Summarize' && item.user_message !== '[历史总结]') {
+                appendMessage('user', item.user_message);
+            }
+            if (item.ai_reply && item.user_message !== 'History_Summarize' && item.user_message !== '[历史总结]') {
+                appendMessage('ai', item.ai_reply);
+            }
+        });
+        chat_id = chatIdStr;
+        setActiveSession(chatIdStr);
+        if (chatTitle) chatTitle.textContent = '会话 ' + chatIdStr.slice(-6);
+        openAiChatWidget();
+        scrollToBottom();
+    });
+}
+
+function loadChatSummaries() {
+    const currentUserId = ensureUserId();
+    if (!chatSessionList || !currentUserId) return;
+    chatSessionList.innerHTML = '';
+
+    axios.get('/ai/summaries', {
+        params: { user_id: currentUserId }
+    }).then(function(res) {
+        if (!(res.data && res.data.code === 200 && Array.isArray(res.data.data))) return;
+        res.data.data.forEach(function(item) {
+            ensureSessionItem(item.ai_reply, item.chat_id);
+        });
+        if (chat_id) setActiveSession(chat_id);
+    });
+}
+
+function startNewChatSession() {
+    if (hasMeaningfulHistory()) {
+        summarizeAndShowSession();
+    }
+    chat_id = String(generateChatId());
+    if (chatTitle) chatTitle.textContent = '新会话';
+    aiGreet();
+    setActiveSession(chat_id);
+    setTimeout(loadChatSummaries, 300);
+}
+
+function openAiChatWidget() {
+    if (!aiChatWidget) return;
+    if (typeof window.closeTestWidget === 'function') {
+        window.closeTestWidget();
+    }
+    if (typeof window.closeMusicWidget === 'function') {
+        window.closeMusicWidget();
+    }
+    if (typeof window.closeMoodWidget === 'function') {
+        window.closeMoodWidget();
+    }
+    if (typeof window.closeHomeMessageWidget === 'function') {
+        window.closeHomeMessageWidget();
+    }
+    aiChatWidget.style.display = 'flex';
+    document.body.classList.add('widget-modal-open');
+    if (!hasInitialized) {
+        hasInitialized = true;
+        loadChatSummaries();
+        startNewChatSession();
+    } else if (!chat_id) {
+        startNewChatSession();
+    }
+}
+
+function closeAiChatWidget() {
+    if (!aiChatWidget) return;
+    aiChatWidget.style.display = 'none';
+    document.body.classList.remove('widget-modal-open');
+}
+
+function toggleAiChatWidget() {
+    if (!aiChatWidget) return;
+    if (aiChatWidget.style.display === 'none' || aiChatWidget.style.display === '') {
+        openAiChatWidget();
+    } else {
+        closeAiChatWidget();
+    }
+}
+
+function openAiChatWidgetWithPrompt(prompt, autoSend) {
+    openAiChatWidget();
+    if (!chatInput) return;
+    chatInput.value = String(prompt || '').trim();
+    chatInput.focus();
+    if (autoSend && chatInput.value) {
+        sendMessage(chatInput.value);
+    }
+}
+
+if (sendChatBtn) {
+    sendChatBtn.addEventListener('click', function() {
+        sendMessage();
+    });
+}
+
+if (chatInput) {
+    chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
     });
 }
 
-// 进入AI聊天页面时加载历史总结
-function loadChatSummaries() {
-    const sessionList = document.getElementById('chatSessionList');
-    if (!sessionList) return;
-    sessionList.innerHTML = '';
-    axios.get('/ai/summaries', {
-        params: {
-            user_id: user_id
-        }
-    }).then(res => {
-        console.log('历史总结数据：', res.data);
-        if (
-            res.data && res.data.code === 200 && Array.isArray(res.data.data)) {
-            res.data.data.forEach(item => {
-                addSessionToSidebar(item.ai_reply, item.chat_id);
-            });
-        }
+if (newChatBtn) {
+    newChatBtn.addEventListener('click', function() {
+        startNewChatSession();
     });
 }
+
+if (aiChatBubble) {
+    aiChatBubble.addEventListener('click', toggleAiChatWidget);
+}
+
+if (closeAiChatBtn) {
+    closeAiChatBtn.addEventListener('click', closeAiChatWidget);
+}
+
+window.sendMessage = sendMessage;
+window.summarizeAndShowSession = summarizeAndShowSession;
+window.startNewChatSession = startNewChatSession;
+window.loadChatSummaries = loadChatSummaries;
+window.loadHistoryByChatId = loadHistoryByChatId;
+window.openAiChatWidget = openAiChatWidget;
+window.openAiChatWidgetWithPrompt = openAiChatWidgetWithPrompt;
 
